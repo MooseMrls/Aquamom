@@ -11,6 +11,10 @@
   border: 1px solid var(--navy-800);
 }
 
+.qr-reader video {
+  transform: scaleX(-1);
+}
+
 .qr-reader-overlay {
   position: absolute;
   inset: 0;

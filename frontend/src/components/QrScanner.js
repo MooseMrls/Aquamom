@@ -13,11 +13,12 @@ export default function QrScanner({ onResult, onError, paused }) {
   const lastCodeRef = useRef({ code: null, time: 0 });
 
   useEffect(() => {
-    const html5QrCode = new Html5Qrcode(CONTAINER_ID);
-    scannerRef.current = html5QrCode;
+    let active = true;
+    let html5QrCode = null;
 
     Html5Qrcode.getCameras()
       .then((devices) => {
+        if (!active) return;
         if (!devices || devices.length === 0) {
           onError && onError('No camera device was found on this device.');
           return;
@@ -25,41 +26,48 @@ export default function QrScanner({ onResult, onError, paused }) {
         const backCamera = devices.find((d) => /back|rear|environment/i.test(d.label));
         const cameraId = (backCamera || devices[0]).id;
 
-        html5QrCode
-          .start(
-            cameraId,
-            { fps: 10, qrbox: 240 },
-            (decodedText) => {
-              const now = Date.now();
-              // Ignore duplicate reads of the same code within 3 seconds.
-              if (lastCodeRef.current.code === decodedText && now - lastCodeRef.current.time < 3000) {
-                return;
-              }
-              lastCodeRef.current = { code: decodedText, time: now };
-              onResult(decodedText);
-            },
-            () => {
-              // Called continuously while no QR code is in frame; ignore.
+        html5QrCode = new Html5Qrcode(CONTAINER_ID);
+        scannerRef.current = html5QrCode;
+
+        return html5QrCode.start(
+          cameraId,
+          { fps: 10, qrbox: 240 },
+          (decodedText) => {
+            const now = Date.now();
+            // Ignore duplicate reads of the same code within 3 seconds.
+            if (lastCodeRef.current.code === decodedText && now - lastCodeRef.current.time < 3000) {
+              return;
             }
-          )
-          .then(() => {
-            runningRef.current = true;
-          })
-          .catch((err) => {
-            onError && onError(err?.message || 'Unable to start the camera.');
-          });
+            lastCodeRef.current = { code: decodedText, time: now };
+            onResult(decodedText);
+          },
+          () => {
+            // Called continuously while no QR code is in frame; ignore.
+          }
+        );
+      })
+      .then(() => {
+        if (!active) {
+          if (html5QrCode) {
+            html5QrCode.stop().then(() => html5QrCode.clear()).catch(() => {});
+          }
+        } else {
+          runningRef.current = true;
+        }
       })
       .catch((err) => {
-        onError && onError(err?.message || 'Camera access was denied.');
+        if (active) {
+          onError && onError(err?.message || 'Unable to start the camera.');
+        }
       });
 
     return () => {
-      if (runningRef.current && scannerRef.current) {
-        scannerRef.current
+      active = false;
+      if (html5QrCode) {
+        html5QrCode
           .stop()
-          .then(() => scannerRef.current && scannerRef.current.clear())
+          .then(() => html5QrCode.clear())
           .catch(() => {});
-        runningRef.current = false;
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
