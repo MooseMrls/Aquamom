@@ -9,6 +9,7 @@ const requireAuth = require('./middleware/auth');
 const authRoutes = require('./routes/authRoutes');
 const customerRoutes = require('./routes/customerRoutes');
 const gallonRoutes = require('./routes/gallonRoutes');
+const transactionRoutes = require('./routes/transactionRoutes');
 
 const app = express();
 
@@ -25,6 +26,7 @@ app.use('/api/auth', authRoutes);
 app.get('/api/dashboard', requireAuth, getDashboardStats);
 app.use('/api/customers', requireAuth, customerRoutes);
 app.use('/api/gallons', requireAuth, gallonRoutes);
+app.use('/api/transactions', requireAuth, transactionRoutes);
 
 app.use((req, res) => res.status(404).json({ message: 'Route not found.' }));
 

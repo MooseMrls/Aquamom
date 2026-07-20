@@ -37,6 +37,12 @@ const icons = {
       <path d="M13 11.7c1.8.2 3.1 1.7 3.4 4.1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
     </svg>
   ),
+  transactions: (
+    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M3 5.5h14M3 10h14M3 14.5h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="15.5" cy="14.5" r="1.5" stroke="currentColor" strokeWidth="1.5" />
+    </svg>
+  ),
   logout: (
     <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M8 3H5a1.5 1.5 0 0 0-1.5 1.5v11A1.5 1.5 0 0 0 5 17h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -50,6 +56,7 @@ const links = [
   { to: '/admin/gallons', label: 'Gallons', icon: 'gallons' },
   { to: '/admin/scanner', label: 'Scan Gallon', icon: 'scanner' },
   { to: '/admin/customers', label: 'Customers', icon: 'customers' },
+  { to: '/admin/transactions', label: 'Transactions', icon: 'transactions' },
 ];
 
 export default function AdminSidebar() {

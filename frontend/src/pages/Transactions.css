@@ -1,0 +1,110 @@
+/* ---------- Transactions page ---------- */
+
+.filters-card {
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.search-row {
+  display: flex;
+  gap: 12px;
+}
+
+.search-row .input {
+  flex: 1;
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) 120px;
+  gap: 16px;
+  align-items: flex-end;
+}
+
+@media (max-width: 768px) {
+  .filters-grid {
+    grid-template-columns: 1fr;
+  }
+  .filter-actions-cell {
+    text-align: right;
+  }
+}
+
+.filter-actions-cell {
+  display: flex;
+  justify-content: flex-end;
+  height: 42px;
+  align-items: center;
+}
+
+.list-panel {
+  overflow-x: auto;
+}
+
+.pagination-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.pagination-info {
+  font-size: 14px;
+  color: var(--text-muted);
+}
+
+/* Badge action styles matching premium dashboard */
+.transaction-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 9999px;
+  text-transform: capitalize;
+}
+
+.badge-registered {
+  background-color: rgba(99, 102, 241, 0.15);
+  color: #a5b4fc;
+}
+
+.badge-returned {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #93c5fd;
+}
+
+.badge-assigned {
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #fde047;
+}
+
+.badge-delivered {
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #6ee7b7;
+}
+
+.badge-undelivered {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+}
+
+.badge-paid {
+  background-color: rgba(16, 185, 129, 0.25);
+  color: #34d399;
+}
+
+.badge-unpaid {
+  background-color: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+}
+
+.loading-state, .empty-state {
+  text-align: center;
+  padding: 40px 0;
+  color: var(--text-muted);
+  font-size: 15px;
+}

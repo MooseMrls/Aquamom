@@ -9,6 +9,7 @@ import Customers from './pages/Customers.js';
 import CustomerDetail from './pages/CustomerDetail.js';
 import PublicLookup from './pages/PublicLookup.js';
 import AdminLogin from './pages/AdminLogin.js';
+import Transactions from './pages/Transactions.js';
 import './styles/layout.css';
 
 // Public shell: what customers see. No navigation to the staff
@@ -98,6 +99,16 @@ export default function App() {
           <ProtectedRoute>
             <AdminLayout>
               <CustomerDetail />
+            </AdminLayout>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/transactions"
+        element={
+          <ProtectedRoute>
+            <AdminLayout>
+              <Transactions />
             </AdminLayout>
           </ProtectedRoute>
         }
