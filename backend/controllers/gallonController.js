@@ -96,6 +96,7 @@ exports.scanGallon = async (req, res) => {
 
     gallon.locationStatus = 'at_station';
     gallon.deliveryStatus = 'undelivered';
+    gallon.paymentStatus = 'unpaid';
     gallon.lastScannedAt = new Date();
     await gallon.save();
 
