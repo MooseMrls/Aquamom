@@ -1,0 +1,60 @@
+/* ---------- Admin auth screen ---------- */
+.auth-shell {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gradient-deep);
+  padding: 24px;
+  overflow: hidden;
+}
+
+.auth-shell::before {
+  content: '';
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(76, 214, 206, 0.16), transparent 70%);
+  top: -160px;
+  right: -160px;
+}
+
+.auth-card {
+  position: relative;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  padding: 38px 34px;
+  width: 100%;
+  max-width: 380px;
+  box-shadow: var(--shadow-lg);
+  animation: fade-up 0.32s var(--ease);
+}
+
+.auth-brand {
+  margin-bottom: 26px;
+}
+
+.auth-card h1 {
+  font-size: 23px;
+  margin: 0 0 6px;
+}
+
+.auth-card .page-subtitle {
+  margin-bottom: 24px;
+}
+
+.auth-back-link {
+  display: block;
+  text-align: center;
+  margin-top: 22px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--teal-700);
+  text-decoration: none;
+}
+
+.auth-back-link:hover {
+  text-decoration: underline;
+}

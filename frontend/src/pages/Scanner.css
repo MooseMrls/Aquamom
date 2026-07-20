@@ -1,0 +1,46 @@
+/* ---------- Scanner page ---------- */
+.scanner-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+@media (max-width: 820px) {
+  .scanner-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.camera-error-alert {
+  margin-top: 12px;
+}
+
+.manual-entry {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.result-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+
+.result-code {
+  font-size: 17px;
+  margin: 0 0 10px;
+}
+
+.result-badges {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.result-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+}

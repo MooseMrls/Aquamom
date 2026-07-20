@@ -1,0 +1,70 @@
+.brand-mark-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform var(--transition);
+}
+
+.brand-mark svg {
+  width: 22px;
+  height: 22px;
+}
+
+.brand-mark-group:hover .brand-mark {
+  transform: scale(1.06) rotate(-4deg);
+}
+
+.brand-name {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 17px;
+  line-height: 1.1;
+  color: #ffffff;
+}
+
+.brand-tagline {
+  font-size: 11.5px;
+  color: rgba(232, 246, 245, 0.62);
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+}
+
+/* On light backgrounds (auth card header sits on white) the wordmark
+   needs dark text instead of the white used on navy surfaces. */
+.brand-mark-on-light .brand-name {
+  color: var(--navy-900);
+}
+
+.brand-mark-on-light .brand-tagline {
+  color: var(--text-soft);
+}
+
+.brand-mark-on-light .brand-mark {
+  background: var(--aqua-100);
+}
+
+.brand-mark-lg .brand-mark {
+  width: 46px;
+  height: 46px;
+  border-radius: 13px;
+}
+
+.brand-mark-lg .brand-mark svg {
+  width: 27px;
+  height: 27px;
+}
+
+.brand-mark-lg .brand-name {
+  font-size: 19px;
+}

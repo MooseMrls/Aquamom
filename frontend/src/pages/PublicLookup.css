@@ -1,0 +1,42 @@
+/* ---------- Public lookup ---------- */
+.lookup-form {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.lookup-results {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.lookup-summary {
+  display: flex;
+  gap: 32px;
+  margin: 14px 0 6px;
+  flex-wrap: wrap;
+}
+
+/* Local overrides: .lookup-summary sits on a white panel, unlike the
+   dark highlight-banner these labels were originally styled for, so it
+   needs its own light-surface contrast rather than reusing the
+   near-white banner text colors. */
+.lookup-summary .highlight-label {
+  color: var(--text-soft);
+}
+
+.lookup-summary .highlight-value {
+  color: var(--navy-900);
+}
+
+.lookup-list {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13.5px;
+  color: var(--text);
+}
+
+.lookup-list li {
+  margin-bottom: 5px;
+}

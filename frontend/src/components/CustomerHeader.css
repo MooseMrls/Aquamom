@@ -1,0 +1,21 @@
+/* ---------- Customer-facing header ---------- */
+.customer-header {
+  position: relative;
+  background: var(--gradient-deep);
+  padding: 30px 24px 40px;
+}
+
+.customer-header-inner {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.customer-header-wave {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  width: 100%;
+  height: 22px;
+  display: block;
+}

@@ -1,0 +1,28 @@
+/* ---------- Filter bar ---------- */
+.filter-bar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.filter-bar .input {
+  min-width: 180px;
+  flex: 1;
+}
+
+/* ---------- QR preview ---------- */
+.qr-preview {
+  text-align: center;
+}
+
+.qr-preview img {
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  padding: 10px;
+}
+
+.qr-code-text {
+  margin: 14px 0;
+  font-size: 15px;
+}

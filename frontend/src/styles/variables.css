@@ -1,0 +1,61 @@
+/*
+  Design tokens for Aquamom.
+  Palette rationale: deep navy grounds the staff console like still
+  water at depth; the teal-to-cyan gradient ("droplet cyan") is the
+  brand's signature accent, echoed in the droplet mark and highlight
+  surfaces. Status colors are separate and intentionally desaturated
+  so they never compete with the brand accent.
+*/
+:root {
+  /* Brand palette — deep water navy with a clear aqua accent */
+  --navy-950: #071620;
+  --navy-900: #0d2635;
+  --navy-800: #14384c;
+  --navy-700: #1c4a63;
+
+  --teal-600: #0e8a8f;
+  --teal-700: #0a6d71;
+  --cyan-400: #4cd6ce;
+  --cyan-300: #7fe6df;
+
+  --aqua-100: #e8f6f5;
+  --aqua-200: #c9ece9;
+
+  --amber-600: #b5810f;
+  --amber-100: #f8ecd3;
+  --green-600: #1d8a54;
+  --green-100: #dff2e6;
+  --red-600: #c1382f;
+  --red-100: #fbe3e1;
+  --blue-600: #2e6da4;
+  --blue-100: #e4eef8;
+
+  --paper: #f5f8f9;
+  --surface: #ffffff;
+  --border: #e1e7ea;
+  --border-strong: #cdd8dd;
+  --muted: #8a99a3;
+  --text: #16242b;
+  --text-soft: #55666e;
+
+  --font-display: 'Manrope', 'Segoe UI', sans-serif;
+  --font-body: 'Inter', 'Segoe UI', sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Consolas', monospace;
+
+  --gradient-brand: linear-gradient(135deg, var(--teal-600) 0%, var(--cyan-400) 100%);
+  --gradient-deep: linear-gradient(160deg, var(--navy-950) 0%, var(--navy-800) 100%);
+  --gradient-panel: linear-gradient(135deg, var(--navy-900), var(--navy-950));
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 20px;
+  --radius-full: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(7, 22, 32, 0.06);
+  --shadow: 0 6px 20px rgba(7, 22, 32, 0.08), 0 1px 3px rgba(7, 22, 32, 0.05);
+  --shadow-lg: 0 20px 48px rgba(7, 22, 32, 0.18);
+  --shadow-brand: 0 10px 24px rgba(14, 138, 143, 0.28);
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --transition: 0.18s var(--ease);
+}

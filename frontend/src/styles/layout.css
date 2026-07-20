@@ -1,0 +1,91 @@
+/* ---------- App shells ---------- */
+.app-shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+}
+
+.app-footer {
+  text-align: center;
+  padding: 22px;
+  font-size: 12px;
+  color: var(--muted);
+  letter-spacing: 0.2px;
+}
+
+/* Admin shell uses a persistent sidebar, not a stacked header */
+.admin-shell {
+  flex-direction: row;
+  min-height: 100vh;
+}
+
+.admin-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.customer-shell {
+  background: var(--paper);
+}
+
+@media (max-width: 860px) {
+  .admin-shell {
+    flex-direction: column;
+  }
+}
+
+/* ---------- Page layout ---------- */
+.page {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 36px 28px 64px;
+  animation: fade-up 0.32s var(--ease);
+}
+
+.customer-shell .page {
+  max-width: 720px;
+  padding-top: 40px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.page-header h1 {
+  margin: 0 0 6px;
+  font-size: 27px;
+  font-weight: 800;
+}
+
+.page-subtitle {
+  margin: 0;
+  color: var(--text-soft);
+  font-size: 14.5px;
+  max-width: 56ch;
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--teal-700);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+  margin-bottom: 10px;
+  transition: gap var(--transition);
+}
+
+.back-link:hover {
+  gap: 7px;
+  text-decoration: underline;
+}

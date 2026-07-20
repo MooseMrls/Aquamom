@@ -1,0 +1,104 @@
+/* ---------- Panels ---------- */
+.panel {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 24px 26px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+  margin-bottom: 22px;
+}
+
+.panel h2 {
+  margin-top: 0;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.panel h3 {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--navy-900);
+  margin: 20px 0 10px;
+}
+
+/* ---------- Highlight banner ---------- */
+.highlight-banner {
+  position: relative;
+  background: var(--gradient-panel);
+  color: #ffffff;
+  border-radius: var(--radius);
+  padding: 24px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 22px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.highlight-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 140% at 100% 0%, rgba(76, 214, 206, 0.22), transparent 60%);
+  pointer-events: none;
+}
+
+.highlight-banner > * {
+  position: relative;
+}
+
+.highlight-label {
+  font-size: 11.5px;
+  color: rgba(232, 246, 245, 0.72);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
+}
+
+.highlight-value {
+  font-family: var(--font-display);
+  font-size: 29px;
+  font-weight: 800;
+  margin-top: 4px;
+  letter-spacing: -0.01em;
+}
+
+.checkbox-inline {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(232, 246, 245, 0.9);
+}
+
+.checkbox-inline input {
+  accent-color: var(--cyan-400);
+  width: 15px;
+  height: 15px;
+}
+
+/* ---------- Alerts ---------- */
+.alert {
+  padding: 13px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 13.5px;
+  font-weight: 500;
+  margin-bottom: 16px;
+  border: 1px solid transparent;
+}
+
+.alert-error {
+  background: var(--red-100);
+  color: var(--red-600);
+  border-color: rgba(193, 56, 47, 0.15);
+}
+
+.alert-success {
+  background: var(--green-100);
+  color: var(--green-600);
+  border-color: rgba(29, 138, 84, 0.15);
+}
