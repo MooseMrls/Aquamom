@@ -7,9 +7,10 @@ export default function Customers() {
   const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [search, setSearch] = useState('');
   const [onlyUnpaid, setOnlyUnpaid] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
-  const [form, setForm] = useState({ name: '', phone: '', address: '' });
+  const [form, setForm] = useState({ name: '', address: '' });
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
 
@@ -33,7 +34,7 @@ export default function Customers() {
     try {
       await api.post('/customers', form);
       setShowAdd(false);
-      setForm({ name: '', phone: '', address: '' });
+      setForm({ name: '', address: '' });
       load();
     } catch (err) {
       setFormError(errorMessage(err, 'Failed to add customer.'));
@@ -42,7 +43,29 @@ export default function Customers() {
     }
   };
 
-  const visible = onlyUnpaid ? customers.filter((c) => c.unpaidBalance > 0) : customers;
+  const quickToggleCustomerPayment = async (customer) => {
+    try {
+      // Find unpaid gallons belonging to this customer and mark them paid
+      const customerGallons = await api.get(`/customers/${customer._id}`);
+      const unpaidGallons = customerGallons.data.gallons.filter((g) => g.paymentStatus === 'unpaid');
+      for (const g of unpaidGallons) {
+        await api.patch(`/gallons/${g._id}`, { paymentStatus: 'paid' });
+      }
+      load();
+    } catch (err) {
+      setError(errorMessage(err, 'Failed to update payment status.'));
+    }
+  };
+
+  const visible = customers.filter((c) => {
+    if (onlyUnpaid && c.unpaidBalance <= 0) return false;
+    if (search.trim()) {
+      const q = search.toLowerCase().trim();
+      return c.name?.toLowerCase().includes(q);
+    }
+    return true;
+  });
+
   const totalOutstanding = customers.reduce((sum, c) => sum + c.unpaidBalance, 0);
 
   return (
@@ -59,7 +82,7 @@ export default function Customers() {
 
       {error && <div className="alert alert-error">{error}</div>}
 
-      <div className="highlight-banner">
+      <div className="highlight-banner" style={{ marginBottom: '20px' }}>
         <div>
           <div className="highlight-label">Total Outstanding Across All Customers</div>
           <div className="highlight-value">PHP {totalOutstanding.toLocaleString()}</div>
@@ -70,7 +93,28 @@ export default function Customers() {
         </label>
       </div>
 
+      <div className="filter-bar" style={{ marginBottom: '16px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+        <input
+          className="input"
+          type="text"
+          placeholder="Search customer by name..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          style={{ maxWidth: '360px' }}
+        />
+        {search && (
+          <button className="btn btn-text" onClick={() => setSearch('')}>
+            Clear Search
+          </button>
+        )}
+      </div>
+
       <div className="panel">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: 'var(--text)' }}>
+            Customer Records ({customers.length} total)
+          </h2>
+        </div>
         {loading ? (
           <div className="loading-block">Loading customers...</div>
         ) : visible.length === 0 ? (
@@ -80,11 +124,11 @@ export default function Customers() {
             <thead>
               <tr>
                 <th>Name</th>
-                <th>Phone</th>
                 <th>Total Gallons</th>
                 <th>Undelivered</th>
                 <th>Unpaid</th>
                 <th>Unpaid Balance</th>
+                <th>Quick Action</th>
                 <th></th>
               </tr>
             </thead>
@@ -92,7 +136,6 @@ export default function Customers() {
               {visible.map((c) => (
                 <tr key={c._id}>
                   <td>{c.name}</td>
-                  <td className="muted">{c.phone || '-'}</td>
                   <td>{c.totalGallons}</td>
                   <td>{c.undeliveredCount}</td>
                   <td>{c.unpaidCount}</td>
@@ -100,8 +143,21 @@ export default function Customers() {
                     PHP {c.unpaidBalance.toLocaleString()}
                   </td>
                   <td>
+                    {c.unpaidBalance > 0 ? (
+                      <button
+                        className="btn btn-outline"
+                        style={{ padding: '4px 10px', fontSize: '12px' }}
+                        onClick={() => quickToggleCustomerPayment(c)}
+                      >
+                        Mark All Paid
+                      </button>
+                    ) : (
+                      <span className="muted" style={{ fontSize: '12px' }}>Paid</span>
+                    )}
+                  </td>
+                  <td>
                     <Link className="link-button" to={`/admin/customers/${c._id}`}>
-                      View
+                      View Details
                     </Link>
                   </td>
                 </tr>
@@ -118,10 +174,6 @@ export default function Customers() {
             <label>
               Full Name
               <input className="input" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
-            </label>
-            <label>
-              Phone Number
-              <input className="input" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
             </label>
             <label>
               Address

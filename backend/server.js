@@ -10,6 +10,7 @@ const authRoutes = require('./routes/authRoutes');
 const customerRoutes = require('./routes/customerRoutes');
 const gallonRoutes = require('./routes/gallonRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
+const walkInRoutes = require('./routes/walkInRoutes');
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.get('/api/dashboard', requireAuth, getDashboardStats);
 app.use('/api/customers', requireAuth, customerRoutes);
 app.use('/api/gallons', requireAuth, gallonRoutes);
 app.use('/api/transactions', requireAuth, transactionRoutes);
+app.use('/api/walkins', requireAuth, walkInRoutes);
 
 app.use((req, res) => res.status(404).json({ message: 'Route not found.' }));
 

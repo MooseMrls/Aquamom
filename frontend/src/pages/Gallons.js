@@ -16,10 +16,13 @@ export default function Gallons() {
 
   const [showRegister, setShowRegister] = useState(false);
   const [form, setForm] = useState(emptyForm);
+  const [customSize, setCustomSize] = useState('');
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
 
   const [editGallon, setEditGallon] = useState(null);
+  const [editSizeSelection, setEditSizeSelection] = useState('Round');
+  const [editCustomSize, setEditCustomSize] = useState('');
   const [qrGallon, setQrGallon] = useState(null);
   const [qrImage, setQrImage] = useState('');
 
@@ -54,6 +57,7 @@ export default function Gallons() {
 
   const openRegister = () => {
     setForm(emptyForm);
+    setCustomSize('');
     setFormError('');
     setShowRegister(true);
   };
@@ -66,7 +70,7 @@ export default function Gallons() {
       await api.post('/gallons', {
         qrCode: form.qrCode,
         customer: form.customer || null,
-        size: form.size,
+        size: form.size === 'Custom' ? customSize : form.size,
         price: Number(form.price),
       });
       setShowRegister(false);
@@ -80,10 +84,13 @@ export default function Gallons() {
   };
 
   const openEdit = (gallon) => {
+    const isStandard = ['Round', 'Slim'].includes(gallon.size);
     setEditGallon({
       ...gallon,
       customer: gallon.customer?._id || '',
     });
+    setEditSizeSelection(isStandard ? gallon.size : 'Custom');
+    setEditCustomSize(isStandard ? '' : gallon.size);
   };
 
   const submitEdit = async (e) => {
@@ -92,7 +99,7 @@ export default function Gallons() {
     try {
       await api.patch(`/gallons/${editGallon._id}`, {
         customer: editGallon.customer || null,
-        size: editGallon.size,
+        size: editSizeSelection === 'Custom' ? editCustomSize : editSizeSelection,
         price: Number(editGallon.price),
         deliveryStatus: editGallon.deliveryStatus,
         paymentStatus: editGallon.paymentStatus,
@@ -174,7 +181,7 @@ export default function Gallons() {
       <div className="filter-bar">
         <input
           className="input"
-          placeholder="Search by QR code"
+          placeholder="Search by customer name or QR code..."
           value={filters.search}
           onChange={(e) => setFilters({ ...filters, search: e.target.value })}
         />
@@ -208,6 +215,11 @@ export default function Gallons() {
       </div>
 
       <div className="panel">
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <h2 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: 'var(--text)' }}>
+            Tracked Gallons ({gallons.length} total)
+          </h2>
+        </div>
         {loading ? (
           <div className="loading-block">Loading gallons...</div>
         ) : gallons.length === 0 ? (
@@ -235,24 +247,8 @@ export default function Gallons() {
                   <td>{g.size}</td>
                   <td>PHP {g.price}</td>
                   <td><StatusBadge status={g.locationStatus} /></td>
-                  <td>
-                    <button
-                      className="badge-button"
-                      onClick={() => quickToggle(g, 'deliveryStatus', g.deliveryStatus === 'delivered' ? 'undelivered' : 'delivered')}
-                      title="Click to toggle delivery status"
-                    >
-                      <StatusBadge status={g.deliveryStatus} />
-                    </button>
-                  </td>
-                  <td>
-                    <button
-                      className="badge-button"
-                      onClick={() => quickToggle(g, 'paymentStatus', g.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
-                      title="Click to toggle payment status"
-                    >
-                      <StatusBadge status={g.paymentStatus} />
-                    </button>
-                  </td>
+                  <td><StatusBadge status={g.deliveryStatus} /></td>
+                  <td><StatusBadge status={g.paymentStatus} /></td>
                   <td className="muted">{new Date(g.updatedAt).toLocaleDateString()}</td>
                   <td className="actions-cell">
                     <button className="link-button" onClick={() => viewQr(g)}>QR</button>
@@ -294,8 +290,21 @@ export default function Gallons() {
                 <select className="input" value={form.size} onChange={(e) => setForm({ ...form, size: e.target.value })}>
                   <option value="Round">Round</option>
                   <option value="Slim">Slim</option>
+                  <option value="Custom">Custom...</option>
                 </select>
               </label>
+              {form.size === 'Custom' && (
+                <label>
+                  Custom Size Name
+                  <input
+                    className="input"
+                    value={customSize}
+                    onChange={(e) => setCustomSize(e.target.value)}
+                    placeholder="e.g. 5 Liters"
+                    required
+                  />
+                </label>
+              )}
               <label>
                 Price (PHP)
                 <input
@@ -333,11 +342,24 @@ export default function Gallons() {
             <div className="form-row">
               <label>
                 Size
-                <select className="input" value={editGallon.size} onChange={(e) => setEditGallon({ ...editGallon, size: e.target.value })}>
+                <select className="input" value={editSizeSelection} onChange={(e) => setEditSizeSelection(e.target.value)}>
                   <option value="Round">Round</option>
                   <option value="Slim">Slim</option>
+                  <option value="Custom">Custom...</option>
                 </select>
               </label>
+              {editSizeSelection === 'Custom' && (
+                <label>
+                  Custom Size Name
+                  <input
+                    className="input"
+                    value={editCustomSize}
+                    onChange={(e) => setEditCustomSize(e.target.value)}
+                    placeholder="e.g. 5 Liters"
+                    required
+                  />
+                </label>
+              )}
               <label>
                 Price (PHP)
                 <input
@@ -347,30 +369,6 @@ export default function Gallons() {
                   value={editGallon.price}
                   onChange={(e) => setEditGallon({ ...editGallon, price: e.target.value })}
                 />
-              </label>
-            </div>
-            <div className="form-row">
-              <label>
-                Delivery Status
-                <select
-                  className="input"
-                  value={editGallon.deliveryStatus}
-                  onChange={(e) => setEditGallon({ ...editGallon, deliveryStatus: e.target.value })}
-                >
-                  <option value="undelivered">Undelivered</option>
-                  <option value="delivered">Delivered</option>
-                </select>
-              </label>
-              <label>
-                Payment Status
-                <select
-                  className="input"
-                  value={editGallon.paymentStatus}
-                  onChange={(e) => setEditGallon({ ...editGallon, paymentStatus: e.target.value })}
-                >
-                  <option value="unpaid">Unpaid</option>
-                  <option value="paid">Paid</option>
-                </select>
               </label>
             </div>
             <label>

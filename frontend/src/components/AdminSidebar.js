@@ -43,6 +43,20 @@ const icons = {
       <circle cx="15.5" cy="14.5" r="1.5" stroke="currentColor" strokeWidth="1.5" />
     </svg>
   ),
+  today: (
+    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M7 2v4M13 2v4M3 8h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="10" cy="13" r="1.5" fill="currentColor" />
+    </svg>
+  ),
+  walkin: (
+    <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="10" cy="5" r="2" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M6.5 10.5c.5-2 1.5-3 3.5-3s3 1 3.5 3L14.5 17h-2l-1-4h-3l-1 4h-2l1.5-6.5Z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" />
+      <path d="M7.5 13H5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+    </svg>
+  ),
   logout: (
     <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path d="M8 3H5a1.5 1.5 0 0 0-1.5 1.5v11A1.5 1.5 0 0 0 5 17h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
@@ -55,6 +69,7 @@ const links = [
   { to: '/admin', label: 'Dashboard', icon: 'dashboard', end: true },
   { to: '/admin/gallons', label: 'Gallons', icon: 'gallons' },
   { to: '/admin/scanner', label: 'Scan Gallon', icon: 'scanner' },
+  { to: '/admin/walkin', label: 'Walk-in Sales', icon: 'walkin' },
   { to: '/admin/customers', label: 'Customers', icon: 'customers' },
   { to: '/admin/transactions', label: 'Transactions', icon: 'transactions' },
 ];

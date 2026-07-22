@@ -54,7 +54,7 @@ exports.getTransactions = async (req, res) => {
 
     const [transactions, total] = await Promise.all([
       Transaction.find(filter)
-        .populate('gallon', 'qrCode size')
+        .populate('gallon', 'qrCode size price deliveryStatus paymentStatus')
         .populate('customer', 'name phone')
         .sort({ createdAt: -1 })
         .skip(skipNum)
@@ -71,5 +71,90 @@ exports.getTransactions = async (req, res) => {
     });
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch transactions.', error: err.message });
+  }
+};
+
+// GET /api/transactions/today
+exports.getTodayStats = async (req, res) => {
+  try {
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
+    // Query all transactions from today
+    const transactions = await Transaction.find({
+      createdAt: { $gte: start, $lte: end },
+    })
+      .populate('gallon', 'qrCode size price deliveryStatus paymentStatus')
+      .populate('customer', 'name phone')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    // Group transactions by gallon to get unique active gallons
+    const uniqueGallonsMap = {};
+    let refillsCount = 0;
+    let walkInGallonsCount = 0;
+    let walkInRevenue = 0;
+
+    transactions.forEach((t) => {
+      if (t.isWalkIn) {
+        walkInGallonsCount += t.walkInDetails?.quantity || 0;
+        walkInRevenue += t.walkInDetails?.totalAmount || 0;
+      } else if (t.gallon) {
+        const gallonId = String(t.gallon._id);
+        if (!uniqueGallonsMap[gallonId]) {
+          uniqueGallonsMap[gallonId] = {
+            gallon: t.gallon,
+            hasReturned: false,
+          };
+        }
+        if (t.action === 'returned') {
+          uniqueGallonsMap[gallonId].hasReturned = true;
+        }
+      }
+    });
+
+    let deliveriesCount = 0;
+    let undeliveredCount = 0;
+    let paidCount = 0;
+    let unpaidCount = 0;
+    let standardPaymentsRevenue = 0;
+
+    Object.values(uniqueGallonsMap).forEach((item) => {
+      if (item.hasReturned) {
+        refillsCount++;
+      }
+      if (item.gallon.deliveryStatus === 'delivered') {
+        deliveriesCount++;
+      } else {
+        undeliveredCount++;
+      }
+      if (item.gallon.paymentStatus === 'paid') {
+        paidCount++;
+        standardPaymentsRevenue += item.gallon.price || 25;
+      } else {
+        unpaidCount++;
+      }
+    });
+
+    const totalRevenue = standardPaymentsRevenue + walkInRevenue;
+    const totalRefillsIncludingWalkIn = refillsCount + walkInGallonsCount;
+
+    res.json({
+      refillsCount,
+      walkInGallonsCount,
+      totalRefillsIncludingWalkIn,
+      deliveriesCount,
+      undeliveredCount,
+      paidCount,
+      unpaidCount,
+      standardPaymentsRevenue,
+      walkInRevenue,
+      totalRevenue,
+      transactions,
+    });
+  } catch (err) {
+    res.status(500).json({ message: "Failed to fetch today's statistics.", error: err.message });
   }
 };

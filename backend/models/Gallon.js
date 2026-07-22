@@ -4,7 +4,7 @@ const gallonSchema = new mongoose.Schema(
   {
     qrCode: { type: String, required: true, unique: true, uppercase: true, trim: true },
     customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer', default: null },
-    size: { type: String, enum: ['Round', 'Slim'], default: 'Round' },
+    size: { type: String, default: 'Round' },
     price: { type: Number, default: 25, min: 0 },
 
     // Physical location of the gallon: whether it is currently at the

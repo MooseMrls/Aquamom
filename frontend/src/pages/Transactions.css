@@ -108,3 +108,101 @@
   color: var(--text-muted);
   font-size: 15px;
 }
+
+/* ---------- Day-grouped sections ---------- */
+
+.day-group {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md, 10px);
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.day-group-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 14px 20px;
+  background: var(--surface-alt, rgba(255,255,255,0.03));
+  border: none;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  font-family: inherit;
+  color: var(--text);
+  text-align: left;
+  transition: background 0.15s ease;
+}
+
+.day-group-header:hover {
+  background: rgba(255,255,255,0.06);
+}
+
+.day-group-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.day-group-chevron {
+  font-size: 11px;
+  transition: transform 0.2s ease;
+  display: inline-block;
+}
+
+.day-group-chevron.collapsed {
+  transform: rotate(-90deg);
+}
+
+.day-group-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.day-group-pill {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.pill-undelivered {
+  background: rgba(239, 68, 68, 0.15);
+  color: #fca5a5;
+}
+
+.pill-unpaid {
+  background: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+}
+
+.day-group-revenue {
+  font-size: 13px;
+  font-weight: 600;
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.15);
+  padding: 4px 12px;
+  border-radius: 9999px;
+}
+
+.day-group-count {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 500;
+  background: rgba(255,255,255,0.06);
+  padding: 4px 12px;
+  border-radius: 9999px;
+}
+
+.day-group-body {
+  overflow-x: auto;
+}
+
+.day-group-body .data-table {
+  border-radius: 0;
+}

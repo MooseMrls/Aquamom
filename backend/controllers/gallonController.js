@@ -48,8 +48,15 @@ exports.getGallons = async (req, res) => {
     if (locationStatus) filter.locationStatus = locationStatus;
     if (deliveryStatus) filter.deliveryStatus = deliveryStatus;
     if (paymentStatus) filter.paymentStatus = paymentStatus;
-    if (customer) filter.customer = customer;
-    if (search && search.trim()) filter.qrCode = { $regex: search.trim(), $options: 'i' };
+    if (search && search.trim()) {
+      const searchRegex = new RegExp(search.trim(), 'i');
+      const matchedCustomers = await Customer.find({ name: searchRegex }).select('_id');
+      const customerIds = matchedCustomers.map((c) => c._id);
+      filter.$or = [
+        { qrCode: searchRegex },
+        { customer: { $in: customerIds } },
+      ];
+    }
 
     const gallons = await Gallon.find(filter)
       .populate('customer', 'name phone')
@@ -94,6 +101,12 @@ exports.scanGallon = async (req, res) => {
       });
     }
 
+    if (gallon.locationStatus === 'at_station') {
+      return res.status(400).json({
+        message: `Gallon ${gallon.qrCode} is already recorded at the water station for refilling and cannot be scanned again until delivered to a customer.`,
+      });
+    }
+
     gallon.locationStatus = 'at_station';
     gallon.deliveryStatus = 'undelivered';
     gallon.paymentStatus = 'unpaid';
@@ -125,24 +138,36 @@ exports.updateGallon = async (req, res) => {
     if (price !== undefined && price !== '') gallon.price = price;
     if (notes !== undefined) gallon.notes = notes;
 
+    const start = new Date();
+    start.setHours(0, 0, 0, 0);
+    const end = new Date();
+    end.setHours(23, 59, 59, 999);
+
     if (deliveryStatus && deliveryStatus !== gallon.deliveryStatus) {
       gallon.deliveryStatus = deliveryStatus;
       if (deliveryStatus === 'delivered') {
         gallon.locationStatus = 'with_customer';
         await logTransaction(gallon._id, gallon.customer, 'delivered', 'Gallon marked as delivered.');
       } else {
-        await logTransaction(gallon._id, gallon.customer, 'marked_undelivered', 'Gallon marked as undelivered.');
+        await Transaction.findOneAndDelete({
+          gallon: gallon._id,
+          action: 'delivered',
+          createdAt: { $gte: start, $lte: end }
+        });
       }
     }
 
     if (paymentStatus && paymentStatus !== gallon.paymentStatus) {
       gallon.paymentStatus = paymentStatus;
-      await logTransaction(
-        gallon._id,
-        gallon.customer,
-        paymentStatus === 'paid' ? 'paid' : 'marked_unpaid',
-        paymentStatus === 'paid' ? 'Payment received.' : 'Gallon marked as unpaid.'
-      );
+      if (paymentStatus === 'paid') {
+        await logTransaction(gallon._id, gallon.customer, 'paid', 'Payment received.');
+      } else {
+        await Transaction.findOneAndDelete({
+          gallon: gallon._id,
+          action: 'paid',
+          createdAt: { $gte: start, $lte: end }
+        });
+      }
     }
 
     await gallon.save();

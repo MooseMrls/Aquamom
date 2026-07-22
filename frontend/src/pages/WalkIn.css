@@ -1,0 +1,54 @@
+/* ---------- Walk-in Sales styling ---------- */
+
+.walkin-layout {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 24px;
+}
+
+@media (max-width: 900px) {
+  .walkin-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.walkin-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.total-display-cell {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.total-price-text {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--emerald-400, #34d399);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+  background: var(--navy-900);
+  border: 1px dashed var(--navy-750);
+  text-align: center;
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.submit-btn {
+  margin-top: 10px;
+  width: 100%;
+}
+
+.note-subtext {
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.table-responsive {
+  overflow-x: auto;
+}

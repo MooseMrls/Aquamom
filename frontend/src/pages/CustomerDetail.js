@@ -22,6 +22,18 @@ export default function CustomerDetail() {
   if (error) return <div className="page"><div className="alert alert-error">{error}</div></div>;
   if (!data) return null;
 
+  const quickToggle = async (gallon, field, value) => {
+    if (!gallon) return;
+    try {
+      await api.patch(`/gallons/${gallon._id}`, { [field]: value });
+      // Refresh customer data
+      const res = await api.get(`/customers/${id}`);
+      setData(res.data);
+    } catch (err) {
+      setError(errorMessage(err, 'Failed to update gallon.'));
+    }
+  };
+
   const { customer, gallons } = data;
   const unpaidBalance = gallons.filter((g) => g.paymentStatus === 'unpaid').reduce((sum, g) => sum + g.price, 0);
 
@@ -32,7 +44,7 @@ export default function CustomerDetail() {
           <Link to="/admin/customers" className="back-link">&larr; Back to Customers</Link>
           <h1>{customer.name}</h1>
           <p className="page-subtitle">
-            {customer.phone || 'No phone on file'} &middot; {customer.address || 'No address on file'}
+            {customer.address || 'No address on file'}
           </p>
         </div>
       </div>
@@ -69,9 +81,27 @@ export default function CustomerDetail() {
                   <td>{g.size}</td>
                   <td>PHP {g.price}</td>
                   <td><StatusBadge status={g.locationStatus} /></td>
-                  <td><StatusBadge status={g.deliveryStatus} /></td>
-                  <td><StatusBadge status={g.paymentStatus} /></td>
-                  <td className="muted">{new Date(g.updatedAt).toLocaleDateString()}</td>
+                  <td>
+                    <button
+                      className="badge-button"
+                      onClick={() => quickToggle(g, 'deliveryStatus', g.deliveryStatus === 'delivered' ? 'undelivered' : 'delivered')}
+                      title="Click to toggle delivery status"
+                    >
+                      <StatusBadge status={g.deliveryStatus} />
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      className="badge-button"
+                      onClick={() => quickToggle(g, 'paymentStatus', g.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
+                      title="Click to toggle payment status"
+                    >
+                      <StatusBadge status={g.paymentStatus} />
+                    </button>
+                  </td>
+                  <td className="muted">
+                    {new Date(g.updatedAt).toLocaleDateString()} {new Date(g.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </td>
                 </tr>
               ))}
             </tbody>
