@@ -17,9 +17,11 @@
   transition: var(--transition);
 }
 
-.brand-mark svg {
-  width: 22px;
-  height: 22px;
+.brand-mark img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+  border-radius: 50%;
 }
 
 .brand-mark-group:hover .brand-mark {
@@ -67,9 +69,9 @@
   border-radius: var(--radius-lg);
 }
 
-.brand-mark-lg .brand-mark svg {
-  width: 26px;
-  height: 26px;
+.brand-mark-lg .brand-mark img {
+  width: 30px;
+  height: 30px;
 }
 
 .brand-mark-lg .brand-name {

@@ -19,3 +19,9 @@
   height: 22px;
   display: block;
 }
+
+@media (max-width: 640px) {
+  .customer-header {
+    padding: 20px 16px 32px;
+  }
+}
