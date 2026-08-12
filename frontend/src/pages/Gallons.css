@@ -1,28 +1,55 @@
-/* ---------- Filter bar ---------- */
-.filter-bar {
+/* ---------- Gallon Filters ---------- */
+.gallon-filters {
   display: flex;
   gap: 12px;
-  margin-bottom: 18px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
+  align-items: center;
+  background: var(--surface);
+  padding: 12px 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
 }
 
-.filter-bar .input {
-  min-width: 180px;
+.gallon-filter-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   flex: 1;
+  min-width: 220px;
 }
 
 /* ---------- QR preview ---------- */
 .qr-preview {
   text-align: center;
+  padding: 16px 0;
 }
 
 .qr-preview img {
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-lg);
   border: 1px solid var(--border);
-  padding: 10px;
+  padding: 16px;
+  background-color: #ffffff;
+  box-shadow: var(--shadow);
+  margin-bottom: 16px;
 }
 
 .qr-code-text {
-  margin: 14px 0;
-  font-size: 15px;
+  margin: 12px 0 20px;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--navy-900);
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+}
+
+@media (max-width: 640px) {
+  .gallon-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .gallon-filter-search {
+    min-width: 100%;
+  }
 }

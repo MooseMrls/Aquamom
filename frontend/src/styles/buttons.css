@@ -3,21 +3,20 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 11px 20px;
+  gap: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  padding: 10px 18px;
   font-family: var(--font-body);
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: 600;
   cursor: pointer;
   text-decoration: none;
-  transition: background var(--transition), border-color var(--transition),
-    transform 0.05s ease, box-shadow var(--transition);
+  transition: var(--transition);
 }
 
 .btn:active {
-  transform: translateY(1px);
+  transform: scale(0.98);
 }
 
 .btn-primary {
@@ -28,26 +27,53 @@
 
 .btn-primary:hover {
   filter: brightness(1.05);
-  box-shadow: 0 12px 28px rgba(14, 138, 143, 0.34);
+  box-shadow: 0 12px 20px -5px rgba(13, 148, 136, 0.35);
 }
 
 .btn-outline {
   background: var(--surface);
-  color: var(--navy-900);
-  border: 1px solid var(--border-strong);
+  color: var(--text-soft);
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
 }
 
 .btn-outline:hover {
   border-color: var(--teal-600);
+  color: var(--teal-600);
+  background-color: var(--aqua-50);
+}
+
+.btn-text {
+  background: none;
+  color: var(--teal-600);
+  padding: 6px 12px;
+}
+
+.btn-text:hover {
+  background: var(--aqua-50);
   color: var(--teal-700);
+}
+
+.btn-sm {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  border-radius: var(--radius-sm);
 }
 
 .btn-block {
   width: 100%;
 }
 
+.mt-md {
+  margin-top: 16px;
+}
+
+.mt-lg {
+  margin-top: 24px;
+}
+
 .btn:disabled {
-  opacity: 0.5;
+  opacity: 0.55;
   cursor: not-allowed;
   box-shadow: none;
 }
@@ -55,18 +81,19 @@
 .link-button {
   background: none;
   border: none;
-  color: var(--teal-700);
+  color: var(--teal-600);
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 700;
+  font-size: 0.875rem;
+  font-weight: 600;
   padding: 0;
-  margin-right: 14px;
+  margin-right: 16px;
   text-decoration: none;
   font-family: var(--font-body);
-  transition: color var(--transition);
+  transition: var(--transition);
 }
 
 .link-button:hover {
+  color: var(--teal-700);
   text-decoration: underline;
 }
 
@@ -74,21 +101,25 @@
   color: var(--red-600);
 }
 
+.link-danger:hover {
+  color: var(--red-700);
+}
+
 .icon-button {
   background: none;
   border: none;
-  font-size: 22px;
+  font-size: 20px;
   line-height: 1;
   cursor: pointer;
   color: var(--muted);
   border-radius: var(--radius-sm);
-  padding: 2px 6px;
-  transition: color var(--transition), background var(--transition);
+  padding: 4px 8px;
+  transition: var(--transition);
 }
 
 .icon-button:hover {
   color: var(--text);
-  background: var(--aqua-100);
+  background: var(--surface-alt);
 }
 
 .badge-button {
@@ -96,9 +127,9 @@
   border: none;
   padding: 0;
   cursor: pointer;
-  transition: transform 0.1s ease;
+  transition: transform 0.15s var(--ease);
 }
 
 .badge-button:hover {
-  transform: translateY(-1px);
+  transform: scale(1.05);
 }

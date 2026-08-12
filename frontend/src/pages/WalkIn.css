@@ -1,9 +1,44 @@
-/* ---------- Walk-in Sales styling ---------- */
+/* ---------- Walk-in Stats Row ---------- */
+.walkin-stats-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
 
+.walkin-stat-chip {
+  flex: 1;
+  min-width: 160px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.walkin-stat-chip-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.walkin-stat-chip-value {
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--navy-900);
+}
+
+/* ---------- Walk-in Layout ---------- */
 .walkin-layout {
   display: grid;
-  grid-template-columns: 1fr 1.2fr;
+  grid-template-columns: 1.1fr 1fr;
   gap: 24px;
+  align-items: start;
 }
 
 @media (max-width: 900px) {
@@ -15,40 +50,138 @@
 .walkin-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
-.total-display-cell {
+/* ---------- Quantity Controls ---------- */
+.walkin-qty-control {
   display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  align-items: center;
+  gap: 0;
+  margin-top: 6px;
 }
 
-.total-price-text {
-  font-size: 20px;
-  font-weight: 700;
-  color: var(--emerald-400, #34d399);
-  padding: 8px 12px;
-  border-radius: var(--radius);
-  background: var(--navy-900);
-  border: 1px dashed var(--navy-750);
-  text-align: center;
-  min-height: 42px;
+.walkin-qty-btn {
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  background: var(--surface-alt);
+  border: 1px solid var(--border-strong);
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text);
 }
 
-.submit-btn {
-  margin-top: 10px;
-  width: 100%;
+.walkin-qty-btn:first-child {
+  border-radius: var(--radius) 0 0 var(--radius);
+  border-right: none;
 }
 
-.note-subtext {
-  font-size: 12px;
-  margin-top: 2px;
+.walkin-qty-btn:last-child {
+  border-radius: 0 var(--radius) var(--radius) 0;
+  border-left: none;
+}
+
+.walkin-qty-btn:hover {
+  background: var(--aqua-50);
+  color: var(--teal-600);
+}
+
+.walkin-qty-input {
+  width: 64px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+  border-radius: 0;
+  -moz-appearance: textfield;
+}
+
+.walkin-qty-input::-webkit-outer-spin-button,
+.walkin-qty-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* ---------- Receipt Summary ---------- */
+.walkin-receipt {
+  background: var(--surface-alt);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.walkin-receipt-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--text-soft);
+}
+
+.walkin-receipt-total {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--green-600);
+}
+
+/* ---------- Sales List ---------- */
+.walkin-sales-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.walkin-sale-item {
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--paper);
+  transition: var(--transition);
+}
+
+.walkin-sale-item:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.walkin-sale-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.9rem;
+}
+
+.walkin-sale-time {
+  font-size: 0.8rem;
+  color: var(--muted);
+  font-weight: 500;
+  min-width: 56px;
+}
+
+.walkin-sale-amount {
+  font-weight: 700;
+  color: var(--green-600);
+}
+
+.walkin-sale-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 6px;
+  font-style: italic;
 }
 
 .table-responsive {
   overflow-x: auto;
+  border-radius: var(--radius);
 }

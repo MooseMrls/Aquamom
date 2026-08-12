@@ -1,0 +1,156 @@
+/* ---------- Customer Detail Layout ---------- */
+.cd-layout {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+
+@media (max-width: 860px) {
+  .cd-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ---------- Profile Sidebar Card ---------- */
+.cd-profile-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 28px 24px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 24px;
+}
+
+.cd-avatar {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: var(--radius-lg);
+  background: var(--gradient-brand);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 1.5rem;
+}
+
+.cd-name {
+  font-size: 1.35rem;
+  margin-bottom: 4px;
+  color: var(--navy-900);
+}
+
+.cd-address {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 20px;
+}
+
+.cd-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.cd-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 0;
+  background: var(--surface-alt);
+  border-radius: var(--radius);
+}
+
+.cd-stat-value {
+  font-family: var(--font-display);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--navy-900);
+}
+
+.cd-stat-label {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.cd-balance-block {
+  background: var(--surface-alt);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+
+.cd-balance-label {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.cd-balance-value {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--navy-900);
+  margin-top: 4px;
+}
+
+/* ---------- Gallon History ---------- */
+.cd-history {
+  min-width: 0;
+}
+
+.cd-gallon-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.cd-gallon-item {
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--paper);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  transition: var(--transition);
+}
+
+.cd-gallon-item:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-sm);
+}
+
+.cd-gallon-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cd-gallon-item-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+}
+
+.cd-gallon-item-statuses {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}

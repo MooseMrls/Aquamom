@@ -1,48 +1,59 @@
-/* ---------- Today's Summary page ---------- */
-
+/* ---------- Today's Summary / Dashboard Page ---------- */
 .today-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
 
-@media (max-width: 768px) {
-  .today-stats-grid {
-    grid-template-columns: repeat(2, 1fr);
+.dashboard-split-layout {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .dashboard-split-layout {
+    grid-template-columns: 1fr;
+    gap: 20px;
   }
 }
 
-/* Walk-in badge */
-.badge-walkin {
-  background-color: rgba(139, 92, 246, 0.15);
-  color: #c4b5fd;
+@media (max-width: 640px) {
+  .today-stats-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
 }
 
-/* Reuse transaction-badge styles from Transactions.css */
-.transaction-badge {
-  display: inline-block;
-  padding: 4px 10px;
-  font-size: 12px;
-  font-weight: 500;
-  border-radius: 9999px;
+@media (max-width: 420px) {
+  .today-stats-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
-.badge-registered { background-color: rgba(99, 102, 241, 0.15); color: #a5b4fc; }
-.badge-returned   { background-color: rgba(59, 130, 246, 0.15);  color: #93c5fd; }
-.badge-assigned   { background-color: rgba(245, 158, 11, 0.15);  color: #fde047; }
-.badge-delivered  { background-color: rgba(16, 185, 129, 0.15);  color: #6ee7b7; }
-.badge-undelivered{ background-color: rgba(239, 68, 68, 0.15);   color: #fca5a5; }
-.badge-paid       { background-color: rgba(16, 185, 129, 0.25);  color: #34d399; }
-.badge-unpaid     { background-color: rgba(239, 68, 68, 0.25);   color: #f87171; }
-
-.loading-state, .empty-state {
+.loading-state,
+.empty-state {
   text-align: center;
   padding: 40px 0;
-  color: var(--text-muted);
-  font-size: 15px;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .list-panel {
   overflow-x: auto;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 24px;
+}
+
+.badge-button {
+  transition: transform 0.15s ease-in-out;
+}
+
+.badge-button:hover {
+  transform: translateY(-2px);
 }

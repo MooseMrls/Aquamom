@@ -1,61 +1,80 @@
 /*
   Design tokens for Aquamom.
-  Palette rationale: deep navy grounds the staff console like still
-  water at depth; the teal-to-cyan gradient ("droplet cyan") is the
-  brand's signature accent, echoed in the droplet mark and highlight
-  surfaces. Status colors are separate and intentionally desaturated
-  so they never compete with the brand accent.
+  Palette rationale: Premium, clean, and modern layout.
+  Features a high-end Navy/Slate foundation for administrative control,
+  coupled with vibrant teal/cyan gradients representing pure water.
 */
 :root {
-  /* Brand palette — deep water navy with a clear aqua accent */
-  --navy-950: #071620;
-  --navy-900: #0d2635;
-  --navy-800: #14384c;
-  --navy-700: #1c4a63;
+  /* Brand palette - Deep ocean navy, pure teal, and sky blue */
+  --navy-950: #0a0f1d;
+  --navy-900: #111827;
+  --navy-800: #1f2937;
+  --navy-700: #374151;
+  --navy-600: #4b5563;
 
-  --teal-600: #0e8a8f;
-  --teal-700: #0a6d71;
-  --cyan-400: #4cd6ce;
-  --cyan-300: #7fe6df;
+  --teal-600: #0d9488;
+  --teal-700: #0f766e;
+  --cyan-400: #22d3ee;
+  --cyan-500: #06b6d4;
 
-  --aqua-100: #e8f6f5;
-  --aqua-200: #c9ece9;
+  --aqua-50: #f0fdfa;
+  --aqua-100: #ccfbf1;
+  --aqua-200: #99f6e4;
+  --aqua-600: #0d9488;
 
-  --amber-600: #b5810f;
-  --amber-100: #f8ecd3;
-  --green-600: #1d8a54;
-  --green-100: #dff2e6;
-  --red-600: #c1382f;
-  --red-100: #fbe3e1;
-  --blue-600: #2e6da4;
-  --blue-100: #e4eef8;
+  /* Status Colors - Clean pastels with professional dark text colors */
+  --amber-600: #d97706;
+  --amber-500: #f59e0b;
+  --amber-100: #fef3c7;
+  
+  --green-600: #059669;
+  --green-500: #10b981;
+  --green-100: #d1fae5;
+  
+  --red-600: #dc2626;
+  --red-500: #ef4444;
+  --red-100: #fee2e2;
+  
+  --blue-600: #2563eb;
+  --blue-500: #3b82f6;
+  --blue-100: #dbeafe;
 
-  --paper: #f5f8f9;
+  /* Surfaces & Neutral Layout Colors */
+  --paper: #f8fafc;
   --surface: #ffffff;
-  --border: #e1e7ea;
-  --border-strong: #cdd8dd;
-  --muted: #8a99a3;
-  --text: #16242b;
-  --text-soft: #55666e;
+  --surface-alt: #f1f5f9;
+  --border: #e2e8f0;
+  --border-strong: #cbd5e1;
+  --muted: #64748b;
+  --text: #0f172a;
+  --text-soft: #475569;
 
-  --font-display: 'Manrope', 'Segoe UI', sans-serif;
-  --font-body: 'Inter', 'Segoe UI', sans-serif;
-  --font-mono: 'IBM Plex Mono', 'Consolas', monospace;
+  /* Typography */
+  --font-display: 'Manrope', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
 
-  --gradient-brand: linear-gradient(135deg, var(--teal-600) 0%, var(--cyan-400) 100%);
+  /* Gradients */
+  --gradient-brand: linear-gradient(135deg, var(--teal-600) 0%, var(--cyan-500) 100%);
   --gradient-deep: linear-gradient(160deg, var(--navy-950) 0%, var(--navy-800) 100%);
   --gradient-panel: linear-gradient(135deg, var(--navy-900), var(--navy-950));
+  --gradient-hover: linear-gradient(135deg, var(--teal-700) 0%, var(--teal-600) 100%);
+  --gradient-glass: rgba(255, 255, 255, 0.85);
 
+  /* Borders & Radius */
   --radius-sm: 8px;
   --radius: 12px;
-  --radius-lg: 20px;
-  --radius-full: 999px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
 
-  --shadow-sm: 0 1px 2px rgba(7, 22, 32, 0.06);
-  --shadow: 0 6px 20px rgba(7, 22, 32, 0.08), 0 1px 3px rgba(7, 22, 32, 0.05);
-  --shadow-lg: 0 20px 48px rgba(7, 22, 32, 0.18);
-  --shadow-brand: 0 10px 24px rgba(14, 138, 143, 0.28);
+  /* Shadow Design */
+  --shadow-sm: 0 1px 2px 0 rgba(15, 23, 42, 0.05);
+  --shadow: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.06);
+  --shadow-card: 0 20px 25px -5px rgba(15, 23, 42, 0.04), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  --shadow-brand: 0 10px 15px -3px rgba(13, 148, 136, 0.2);
 
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --transition: 0.18s var(--ease);
+  /* Transitions */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --transition: all 0.2s var(--ease);
 }

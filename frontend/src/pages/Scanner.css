@@ -1,46 +1,78 @@
 /* ---------- Scanner page ---------- */
-.scanner-layout {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 22px;
+.scanner-page {
+  max-width: 520px;
+  margin: 0 auto;
 }
 
-@media (max-width: 820px) {
-  .scanner-layout {
-    grid-template-columns: 1fr;
-  }
+.scanner-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
 }
 
 .camera-error-alert {
-  margin-top: 12px;
+  margin-top: 16px;
 }
 
 .manual-entry {
   display: flex;
-  gap: 10px;
-  margin-top: 18px;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.manual-entry .input {
+  flex: 1;
 }
 
 .result-card {
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 18px;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  background: var(--surface);
+}
+
+.result-card-tight {
+  padding: 12px 0;
+  border: none;
+}
+
+.result-header {
+  text-align: center;
+  margin-bottom: 20px;
 }
 
 .result-code {
-  font-size: 17px;
-  margin: 0 0 10px;
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin: 0 0 12px;
+  color: var(--navy-900);
 }
 
 .result-badges {
   display: flex;
-  gap: 6px;
-  margin-bottom: 16px;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 20px;
   flex-wrap: wrap;
+}
+
+.result-summary {
+  background: var(--surface-alt);
+  padding: 16px 20px;
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid var(--border);
+}
+
+.result-summary div {
+  font-size: 0.95rem;
+  color: var(--text);
 }
 
 .result-actions {
   display: flex;
-  gap: 10px;
-  margin-top: 16px;
+  gap: 12px;
+  margin-top: 20px;
 }

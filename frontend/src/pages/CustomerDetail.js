@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import api, { errorMessage } from '../api.js';
 import StatusBadge from '../components/StatusBadge.js';
+import './CustomerDetail.css';
 
 export default function CustomerDetail() {
   const { id } = useParams();
@@ -18,7 +19,7 @@ export default function CustomerDetail() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  if (loading) return <div className="page"><div className="loading-block">Loading customer...</div></div>;
+  if (loading) return <div className="page"><div className="loading-block">Loading customer profile...</div></div>;
   if (error) return <div className="page"><div className="alert alert-error">{error}</div></div>;
   if (!data) return null;
 
@@ -26,7 +27,6 @@ export default function CustomerDetail() {
     if (!gallon) return;
     try {
       await api.patch(`/gallons/${gallon._id}`, { [field]: value });
-      // Refresh customer data
       const res = await api.get(`/customers/${id}`);
       setData(res.data);
     } catch (err) {
@@ -36,77 +36,107 @@ export default function CustomerDetail() {
 
   const { customer, gallons } = data;
   const unpaidBalance = gallons.filter((g) => g.paymentStatus === 'unpaid').reduce((sum, g) => sum + g.price, 0);
+  const deliveredCount = gallons.filter((g) => g.deliveryStatus === 'delivered').length;
+  const paidCount = gallons.filter((g) => g.paymentStatus === 'paid').length;
 
   return (
     <div className="page">
-      <div className="page-header">
-        <div>
-          <Link to="/admin/customers" className="back-link">&larr; Back to Customers</Link>
-          <h1>{customer.name}</h1>
-          <p className="page-subtitle">
-            {customer.address || 'No address on file'}
-          </p>
-        </div>
-      </div>
+      <Link to="/admin/customers" className="back-link">
+        <svg viewBox="0 0 20 20" fill="none" style={{ width: '14px', height: '14px' }}><path d="M12 5l-5 5 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        Back to Customers
+      </Link>
 
-      <div className="highlight-banner">
-        <div>
-          <div className="highlight-label">Outstanding Balance</div>
-          <div className="highlight-value">PHP {unpaidBalance.toLocaleString()}</div>
-        </div>
-        <div className="highlight-label">{gallons.length} gallon record(s) on file</div>
-      </div>
+      <div className="cd-layout">
+        {/* Profile Sidebar */}
+        <div className="cd-profile-card">
+          <h1 className="cd-name">{customer.name}</h1>
+          <p className="cd-address">{customer.address || 'No address on file'}</p>
 
-      <div className="panel">
-        <h2>Gallon History</h2>
-        {gallons.length === 0 ? (
-          <p className="empty-state">This customer has no gallon records yet.</p>
-        ) : (
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>QR Code</th>
-                <th>Size</th>
-                <th>Price</th>
-                <th>Location</th>
-                <th>Delivery</th>
-                <th>Payment</th>
-                <th>Last Updated</th>
-              </tr>
-            </thead>
-            <tbody>
-              {gallons.map((g) => (
-                <tr key={g._id}>
-                  <td className="mono">{g.qrCode}</td>
-                  <td>{g.size}</td>
-                  <td>PHP {g.price}</td>
-                  <td><StatusBadge status={g.locationStatus} /></td>
-                  <td>
-                    <button
-                      className="badge-button"
-                      onClick={() => quickToggle(g, 'deliveryStatus', g.deliveryStatus === 'delivered' ? 'undelivered' : 'delivered')}
-                      title="Click to toggle delivery status"
-                    >
-                      <StatusBadge status={g.deliveryStatus} />
-                    </button>
-                  </td>
-                  <td>
-                    <button
-                      className="badge-button"
-                      onClick={() => quickToggle(g, 'paymentStatus', g.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
-                      title="Click to toggle payment status"
-                    >
-                      <StatusBadge status={g.paymentStatus} />
-                    </button>
-                  </td>
-                  <td className="muted">
-                    {new Date(g.updatedAt).toLocaleDateString()} {new Date(g.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+          <div className="cd-stats">
+            <div className="cd-stat">
+              <span className="cd-stat-value">{gallons.length}</span>
+              <span className="cd-stat-label">Total Gallons</span>
+            </div>
+            <div className="cd-stat">
+              <span className="cd-stat-value">{deliveredCount}</span>
+              <span className="cd-stat-label">Delivered</span>
+            </div>
+            <div className="cd-stat">
+              <span className="cd-stat-value">{paidCount}</span>
+              <span className="cd-stat-label">Paid</span>
+            </div>
+          </div>
+
+          <div className="cd-balance-block">
+            <span className="cd-balance-label">Outstanding Balance</span>
+            <span className={`cd-balance-value ${unpaidBalance > 0 ? 'text-danger' : ''}`}>
+              ₱{unpaidBalance.toLocaleString()}
+            </span>
+          </div>
+        </div>
+
+        {/* Gallon History */}
+        <div className="cd-history">
+          <div className="panel" style={{ padding: '24px' }}>
+            <h2 style={{ fontSize: '1.15rem', marginBottom: '20px' }}>Gallon History</h2>
+            {gallons.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px' }}>
+                <svg style={{ width: '40px', height: '40px', color: 'var(--muted)', marginBottom: '12px' }} viewBox="0 0 20 20" fill="none"><path d="M7 2.5h6l.6 2.8a5.6 5.6 0 0 1 2.4 4.6c0 3.6-2.7 6.6-6 6.6s-6-3-6-6.6a5.6 5.6 0 0 1 2.4-4.6L7 2.5Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/></svg>
+                <p className="muted">This customer has no gallon records yet.</p>
+              </div>
+            ) : (
+              <div className="cd-gallon-list">
+                {gallons.map((g) => (
+                  <div key={g._id} className="cd-gallon-item">
+                    <div className="cd-gallon-item-header">
+                      <span className="mono" style={{ fontSize: '0.85rem' }}>{g.qrCode}</span>
+                      <span style={{ fontWeight: '600', color: 'var(--navy-900)' }}>₱{g.price}</span>
+                    </div>
+                    <div className="cd-gallon-item-meta">
+                      <span>{g.size}</span>
+                      <span className="muted" style={{ fontSize: '0.78rem' }}>
+                        Updated {new Date(g.updatedAt).toLocaleDateString()} {new Date(g.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
+                    </div>
+                    <div className="cd-gallon-item-statuses" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
+                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <StatusBadge status={g.locationStatus} />
+                        <StatusBadge status={g.deliveryStatus} />
+                        <StatusBadge status={g.paymentStatus} />
+                      </div>
+                      <div style={{ display: 'flex', gap: '6px' }}>
+                        <button
+                          className="btn-icon btn-icon-delivery"
+                          data-tooltip={g.deliveryStatus === 'delivered' ? 'Mark Undelivered' : 'Mark Delivered'}
+                          title={g.deliveryStatus === 'delivered' ? 'Mark Undelivered' : 'Mark Delivered'}
+                          onClick={() => quickToggle(g, 'deliveryStatus', g.deliveryStatus === 'delivered' ? 'undelivered' : 'delivered')}
+                        >
+                          {g.deliveryStatus === 'delivered' ? (
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M5 15L15 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          ) : (
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 10.5l4 4 10-10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          )}
+                        </button>
+                        <button
+                          className="btn-icon btn-icon-payment"
+                          data-tooltip={g.paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
+                          title={g.paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
+                          onClick={() => quickToggle(g, 'paymentStatus', g.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
+                        >
+                          {g.paymentStatus === 'paid' ? (
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v14M8 3h4.5a3.5 3.5 0 0 1 0 7H8M5 6.5h8M5 8.5h8M15 5L5 15"/></svg>
+                          ) : (
+                            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v14M8 3h4.5a3.5 3.5 0 0 1 0 7H8M5 6.5h8M5 8.5h8"/></svg>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

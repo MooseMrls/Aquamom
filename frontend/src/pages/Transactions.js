@@ -3,27 +3,13 @@ import api, { errorMessage } from '../api.js';
 import StatusBadge from '../components/StatusBadge.js';
 import './Transactions.css';
 
-const ACTION_LABELS = {
-  registered: 'Registered',
-  returned: 'Returned for refilling',
-  assigned: 'Assigned to customer',
-  delivered: 'Marked delivered',
-  marked_undelivered: 'Marked undelivered',
-  paid: 'Marked paid',
-  marked_unpaid: 'Marked unpaid',
-  walkin_sale: 'Walk-in Sale',
-};
-
-const ACTION_CLASSES = {
-  registered: 'badge-registered',
-  returned: 'badge-returned',
-  assigned: 'badge-assigned',
-  delivered: 'badge-delivered',
-  marked_undelivered: 'badge-undelivered',
-  paid: 'badge-paid',
-  marked_unpaid: 'badge-unpaid',
-  walkin_sale: 'badge-walkin',
-};
+function ChevronIcon() {
+  return (
+    <svg viewBox="0 0 12 8" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <path d="M1 1.5 6 6.5 11 1.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
 
 function processDayTransactions(transactions) {
   const uniqueGallonsMap = {};
@@ -53,7 +39,7 @@ function processDayTransactions(transactions) {
       qrCode: g.qrCode,
       customerName: g.customer?.name || 'Unassigned',
       size: g.size,
-      price: g.price ?? 25,
+      price: g.price ?? 30,
       deliveryStatus: g.deliveryStatus,
       paymentStatus: g.paymentStatus,
       time: g.latestTime,
@@ -80,7 +66,7 @@ function groupByDay(transactions) {
   const groups = {};
   transactions.forEach((t) => {
     const date = new Date(t.createdAt);
-    const key = date.toLocaleDateString('en-CA'); // YYYY-MM-DD
+    const key = date.toLocaleDateString('en-CA');
     if (!groups[key]) {
       groups[key] = {
         dateKey: key,
@@ -117,18 +103,16 @@ function groupByDay(transactions) {
 }
 
 export default function Transactions() {
-  const [filterType, setFilterType] = useState('week'); // 'week' | 'month' | 'date'
-  const [selectedWeek, setSelectedWeek] = useState(''); // e.g. "2026-W30"
-  const [selectedMonth, setSelectedMonth] = useState(''); // e.g. "2026-07"
+  const [filterType, setFilterType] = useState('week');
+  const [selectedWeek, setSelectedWeek] = useState('');
+  const [selectedMonth, setSelectedMonth] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  // Track collapsed day section
   const [collapsedDays, setCollapsedDays] = useState({});
 
-  const formatDate = (d) => d.toLocaleDateString('en-CA'); // YYYY-MM-DD
+  const formatDate = (d) => d.toLocaleDateString('en-CA');
 
   const getCurrentMonthString = () => {
     const today = new Date();
@@ -142,14 +126,11 @@ export default function Transactions() {
     const [yearStr, monthNumStr] = monthStr.split('-');
     const year = parseInt(yearStr, 10);
     const month = parseInt(monthNumStr, 10);
-
     const firstDay = new Date(year, month - 1, 1);
     const lastDay = new Date(year, month, 0);
-
     return { startDate: formatDate(firstDay), endDate: formatDate(lastDay) };
   };
 
-  // Helper to format current week as YYYY-Wxx (HTML week input format)
   const getCurrentWeekString = () => {
     const today = new Date();
     const target = new Date(today.valueOf());
@@ -165,14 +146,11 @@ export default function Transactions() {
     return `${year}-W${weekNumber.toString().padStart(2, '0')}`;
   };
 
-  // Helper to calculate start and end dates for a YYYY-Wxx week input value
   const getWeekRange = (weekStr) => {
     if (!weekStr) return { startDate: '', endDate: '' };
     const [yearStr, weekNumStr] = weekStr.split('-W');
     const year = parseInt(yearStr, 10);
     const week = parseInt(weekNumStr, 10);
-
-    // Simple ISO week start calculation
     const simple = new Date(year, 0, 1 + (week - 1) * 7);
     const dow = simple.getDay();
     const ISOweekStart = simple;
@@ -181,10 +159,8 @@ export default function Transactions() {
     } else {
       ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
     }
-
     const ISOweekEnd = new Date(ISOweekStart);
     ISOweekEnd.setDate(ISOweekStart.getDate() + 6);
-
     return { startDate: formatDate(ISOweekStart), endDate: formatDate(ISOweekEnd) };
   };
 
@@ -213,11 +189,7 @@ export default function Transactions() {
     setLoading(true);
     setError('');
 
-    const params = {
-      startDate,
-      endDate,
-      limit: 500,
-    };
+    const params = { startDate, endDate, limit: 500 };
 
     api
       .get('/transactions', { params })
@@ -238,7 +210,6 @@ export default function Transactions() {
     }
   };
 
-  // Set default week & month strings on mount if not set
   useEffect(() => {
     if (!selectedWeek) setSelectedWeek(getCurrentWeekString());
     if (!selectedMonth) setSelectedMonth(getCurrentMonthString());
@@ -254,21 +225,22 @@ export default function Transactions() {
   };
 
   const dayGroups = groupByDay(transactions);
+  const grandTotalRevenue = dayGroups.reduce((sum, g) => sum + g.dayTotalRevenue, 0);
 
   return (
     <div className="page">
-      <div className="page-header">
+      <div className="page-header" style={{ marginBottom: '24px' }}>
         <div>
           <h1>Transactions Log</h1>
-          <p className="page-subtitle">Filter historical records per week, per month, or per specific date.</p>
         </div>
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
 
-      <div className="filters-card panel" style={{ padding: '20px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      {/* Filter Controls Card */}
+      <div className="filters-card panel" style={{ padding: '24px', marginBottom: '24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+          <div className="filter-type-buttons">
             <button
               type="button"
               className={`btn ${filterType === 'week' ? 'btn-primary' : 'btn-outline'}`}
@@ -292,147 +264,168 @@ export default function Transactions() {
             </button>
           </div>
 
-          {filterType === 'week' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <label style={{ fontWeight: 600, fontSize: '13px', color: 'var(--text-soft)', whiteSpace: 'nowrap' }}>
-                Select Week:
-              </label>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {filterType === 'week' && (
               <input
-                className="input"
+                className="input input-w-lg"
                 type="week"
                 value={selectedWeek}
                 onChange={(e) => setSelectedWeek(e.target.value)}
-                style={{ width: '210px' }}
               />
-            </div>
-          ) : filterType === 'month' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <label style={{ fontWeight: 600, fontSize: '13px', color: 'var(--text-soft)', whiteSpace: 'nowrap' }}>
-                Select Month:
-              </label>
+            )}
+            {filterType === 'month' && (
               <input
-                className="input"
+                className="input input-w-md"
                 type="month"
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
-                style={{ width: '190px' }}
               />
-            </div>
-          ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <label style={{ fontWeight: 600, fontSize: '13px', color: 'var(--text-soft)', whiteSpace: 'nowrap' }}>
-                Select Date:
-              </label>
+            )}
+            {filterType === 'date' && (
               <input
-                className="input"
+                className="input input-w-md"
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                style={{ width: '190px' }}
               />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </div>
 
-      {filterType === 'date' && !selectedDate ? (
-        <div className="panel" style={{ textAlign: 'center', padding: '60px 20px' }}>
-          <h3 style={{ color: 'var(--text-muted)', marginBottom: '8px' }}>No Date Selected</h3>
-          <p style={{ color: 'var(--text-muted)', fontSize: '14px', margin: 0 }}>
-            Please select a date above to view transaction records for that day.
-          </p>
+      {/* Total Revenue Summary Banner */}
+      {!loading && dayGroups.length > 0 && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', padding: '16px 20px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)' }}>
+          <span style={{ fontSize: '0.9rem', color: 'var(--muted)', fontWeight: '600' }}>
+            Total Period Collected Revenue
+          </span>
+          <span style={{ fontSize: '1.25rem', fontWeight: '800', color: 'var(--green-600)' }}>
+            ₱{grandTotalRevenue.toLocaleString()}
+          </span>
         </div>
-      ) : loading ? (
-        <p className="loading-state">Loading transaction records...</p>
-      ) : transactions.length === 0 ? (
-        <div className="panel" style={{ textAlign: 'center', padding: '40px' }}>
-          <p className="empty-state">No transaction records found for the selected {filterType}.</p>
+      )}
+
+      {/* Day Groups List */}
+      {loading ? (
+        <div className="loading-state">Loading transaction history...</div>
+      ) : dayGroups.length === 0 ? (
+        <div className="panel" style={{ textAlign: 'center', padding: '48px' }}>
+          <svg style={{ width: '48px', height: '48px', color: 'var(--muted)', marginBottom: '16px' }} viewBox="0 0 20 20" fill="none">
+            <path d="M3 5.5h14M3 10h14M3 14.5h10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+            <circle cx="15.5" cy="14.5" r="1.5" stroke="currentColor" strokeWidth="1.5" />
+          </svg>
+          <h3>No Transactions Found</h3>
+          <p className="muted">No transactions were recorded during the selected period.</p>
         </div>
       ) : (
-        <>
-          {dayGroups.map((group) => (
-            <div key={group.dateKey} className="day-group">
-              <button
-                className="day-group-header"
-                onClick={() => toggleDay(group.dateKey)}
-              >
-                <div className="day-group-title">
-                  <span className={`day-group-chevron ${collapsedDays[group.dateKey] ? 'collapsed' : ''}`}>▼</span>
-                  <span>{group.label}</span>
-                </div>
-                <div className="day-group-meta">
-                  {group.dayUndeliveredCount > 0 && (
-                    <span className="day-group-pill pill-undelivered">
-                      Undelivered: {group.dayUndeliveredCount}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          {dayGroups.map((group) => {
+            const isCollapsed = collapsedDays[group.dateKey];
+            return (
+              <div className="day-group" key={group.dateKey}>
+                <button
+                  type="button"
+                  className="day-group-header"
+                  onClick={() => toggleDay(group.dateKey)}
+                >
+                  <div className="day-group-title">
+                    <span className={`day-group-chevron ${isCollapsed ? 'collapsed' : ''}`}>
+                      <ChevronIcon />
                     </span>
-                  )}
-                  {group.dayUnpaidCount > 0 && (
-                    <span className="day-group-pill pill-unpaid">
-                      Unpaid: {group.dayUnpaidCount}
-                    </span>
-                  )}
-                  <span className="day-group-revenue">Revenue: PHP {group.dayTotalRevenue.toLocaleString()}</span>
-                  <span className="day-group-count">{group.displayRows.length} active gallons & sales</span>
-                </div>
-              </button>
+                    <span>{group.label}</span>
+                    <span className="day-group-count">{group.displayRows.length} activities</span>
+                  </div>
 
-              {!collapsedDays[group.dateKey] && (
-                <div className="day-group-body">
-                  <table className="data-table">
-                    <thead>
-                      <tr>
-                        <th>Latest Time</th>
-                        <th>Gallon QR</th>
-                        <th>Customer</th>
-                        <th>Size/Price</th>
-                        <th>Delivery</th>
-                        <th>Payment</th>
-                        <th>Note</th>
-                      </tr>
-                    </thead>
-                    <tbody>
+                  <div className="day-group-meta">
+                    {group.dayUndeliveredCount > 0 && (
+                      <span className="day-group-pill pill-undelivered">
+                        {group.dayUndeliveredCount} Undelivered
+                      </span>
+                    )}
+                    {group.dayUnpaidCount > 0 && (
+                      <span className="day-group-pill pill-unpaid">
+                        {group.dayUnpaidCount} Unpaid
+                      </span>
+                    )}
+                    <span className="day-group-revenue">
+                      ₱{group.dayTotalRevenue.toLocaleString()}
+                    </span>
+                  </div>
+                </button>
+
+                {!isCollapsed && (
+                  <div className="day-group-body" style={{ padding: '16px 20px' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       {group.displayRows.map((row) => (
-                        <tr key={row.id}>
-                          <td>{new Date(row.time).toLocaleTimeString()}</td>
-                          <td className="mono">{row.qrCode}</td>
-                          <td>{row.customerName}</td>
-                          <td>{row.size} (PHP {row.price})</td>
-                          <td>
-                            {row.gallonObj ? (
-                              <button
-                                className="badge-button"
-                                onClick={() => quickToggle(row.gallonObj, 'deliveryStatus', row.deliveryStatus === 'delivered' ? 'undelivered' : 'delivered')}
-                                title="Click to toggle delivery status"
-                              >
+                        <div
+                          key={row.id}
+                          style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '12px 14px',
+                            background: 'var(--paper)',
+                            borderRadius: 'var(--radius)',
+                            border: '1px solid var(--border)',
+                            flexWrap: 'wrap',
+                            gap: '10px'
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                            <span style={{ fontSize: '0.8rem', color: 'var(--muted)', minWidth: '60px', fontWeight: '500' }}>
+                              {new Date(row.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                            <div>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+                                <strong style={{ fontSize: '0.95rem' }}>{row.customerName}</strong>
                                 <StatusBadge status={row.deliveryStatus} />
-                              </button>
-                            ) : (
-                              <StatusBadge status={row.deliveryStatus} />
-                            )}
-                          </td>
-                          <td>
-                            {row.gallonObj ? (
-                              <button
-                                className="badge-button"
-                                onClick={() => quickToggle(row.gallonObj, 'paymentStatus', row.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
-                                title="Click to toggle payment status"
-                              >
                                 <StatusBadge status={row.paymentStatus} />
-                              </button>
-                            ) : (
-                              <StatusBadge status={row.paymentStatus} />
+                              </div>
+                              <span style={{ fontSize: '0.8rem', color: 'var(--text-soft)' }}>
+                                <span className="mono" style={{ fontSize: '0.78rem' }}>{row.qrCode}</span> &bull; {row.size} &bull; ₱{row.price}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            {row.gallonObj && (
+                              <>
+                                <button
+                                  className="btn-icon btn-icon-delivery"
+                                  data-tooltip={row.deliveryStatus === 'delivered' ? 'Mark Undelivered' : 'Mark Delivered'}
+                                  title={row.deliveryStatus === 'delivered' ? 'Mark Undelivered' : 'Mark Delivered'}
+                                  onClick={() => quickToggle(row.gallonObj, 'deliveryStatus', row.deliveryStatus === 'delivered' ? 'undelivered' : 'delivered')}
+                                >
+                                  {row.deliveryStatus === 'delivered' ? (
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M5 15L15 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                  ) : (
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 10.5l4 4 10-10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                  )}
+                                </button>
+                                <button
+                                  className="btn-icon btn-icon-payment"
+                                  data-tooltip={row.paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
+                                  title={row.paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
+                                  onClick={() => quickToggle(row.gallonObj, 'paymentStatus', row.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
+                                >
+                                  {row.paymentStatus === 'paid' ? (
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M15 5L5 15M10 3v14M6.5 6.5C7 5.5 8.2 5 10 5s3.2.8 3.2 2.2c0 1.6-1.8 2-3.2 2.3-1.6.3-3.2.8-3.2 2.5 0 1.5 1.5 2.3 3.2 2.3s2.8-.5 3.5-1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                  ) : (
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 3v14M6.5 6.5C7 5.5 8.2 5 10 5s3.2.8 3.2 2.2c0 1.6-1.8 2-3.2 2.3-1.6.3-3.2.8-3.2 2.5 0 1.5 1.5 2.3 3.2 2.3s2.8-.5 3.5-1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                  )}
+                                </button>
+                              </>
                             )}
-                          </td>
-                          <td className="muted">{row.note}</td>
-                        </tr>
+                          </div>
+                        </div>
                       ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          ))}
-        </>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
       )}
     </div>
   );

@@ -1,29 +1,48 @@
 .qr-reader-wrap {
   position: relative;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
 }
 
 .qr-reader {
   width: 100%;
   min-height: 280px;
   background: var(--navy-950);
-  border-radius: var(--radius);
   overflow: hidden;
-  border: 1px solid var(--navy-800);
 }
 
 .qr-reader video {
   transform: scaleX(-1);
+  object-fit: cover;
 }
 
 .qr-reader-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(7, 22, 32, 0.65);
+  background: rgba(10, 15, 29, 0.75);
   color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 13px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  backdrop-filter: blur(4px);
+  z-index: 10;
+}
+
+/* Custom Scanning active indicator ring */
+.qr-reader-wrap::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 15%;
+  right: 15%;
+  bottom: 15%;
+  border: 2px dashed rgba(34, 211, 238, 0.4);
   border-radius: var(--radius);
-  backdrop-filter: blur(1px);
+  pointer-events: none;
+  animation: pulse-ring 2s infinite ease-in-out;
+  z-index: 5;
 }

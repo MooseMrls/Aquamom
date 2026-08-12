@@ -85,7 +85,7 @@ export default function AdminSidebar() {
   return (
     <aside className="sidebar">
       <div className="sidebar-brand">
-        <BrandMark tagline="Staff Console" />
+        <BrandMark tagline="Admin Console" />
       </div>
 
       <nav className="sidebar-links">

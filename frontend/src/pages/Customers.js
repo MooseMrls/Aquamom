@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api, { errorMessage } from '../api.js';
 import Modal from '../components/Modal.js';
+import './Customers.css';
 
 export default function Customers() {
   const [customers, setCustomers] = useState([]);
@@ -45,7 +46,6 @@ export default function Customers() {
 
   const quickToggleCustomerPayment = async (customer) => {
     try {
-      // Find unpaid gallons belonging to this customer and mark them paid
       const customerGallons = await api.get(`/customers/${customer._id}`);
       const unpaidGallons = customerGallons.data.gallons.filter((g) => g.paymentStatus === 'unpaid');
       for (const g of unpaidGallons) {
@@ -72,112 +72,109 @@ export default function Customers() {
     <div className="page">
       <div className="page-header">
         <div>
-          <h1>Customers</h1>
-          <p className="page-subtitle">Track customer gallon activity and outstanding balances.</p>
+          <h1>Customer Directory</h1>
         </div>
         <button className="btn btn-primary" onClick={() => setShowAdd(true)}>
-          Add Customer
+          + Add Customer
         </button>
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
 
-      <div className="highlight-banner" style={{ marginBottom: '20px' }}>
+      {/* Outstanding Balance Banner */}
+      <div className="customers-balance-banner">
         <div>
-          <div className="highlight-label">Total Outstanding Across All Customers</div>
-          <div className="highlight-value">PHP {totalOutstanding.toLocaleString()}</div>
+          <div className="customers-balance-label">Total Outstanding Balance</div>
+          <div className="customers-balance-value">₱{totalOutstanding.toLocaleString()}</div>
         </div>
-        <label className="checkbox-inline">
-          <input type="checkbox" checked={onlyUnpaid} onChange={(e) => setOnlyUnpaid(e.target.checked)} />
-          Show only customers with unpaid balance
-        </label>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>{customers.length} total customers</span>
+          <label className="customers-toggle">
+            <input type="checkbox" checked={onlyUnpaid} onChange={(e) => setOnlyUnpaid(e.target.checked)} />
+            <span>Unpaid only</span>
+          </label>
+        </div>
       </div>
 
-      <div className="filter-bar" style={{ marginBottom: '16px', display: 'flex', gap: '12px', alignItems: 'center' }}>
+      {/* Search Bar */}
+      <div className="customers-search-bar">
+        <svg style={{ width: '16px', height: '16px', color: 'var(--muted)', flexShrink: 0 }} viewBox="0 0 20 20" fill="none"><circle cx="9" cy="9" r="6" stroke="currentColor" strokeWidth="1.5"/><path d="M14 14l3 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
         <input
           className="input"
           type="text"
-          placeholder="Search customer by name..."
+          placeholder="Search by customer name..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{ maxWidth: '360px' }}
+          style={{ border: 'none', boxShadow: 'none', paddingLeft: 0 }}
         />
         {search && (
-          <button className="btn btn-text" onClick={() => setSearch('')}>
-            Clear Search
-          </button>
+          <button className="btn btn-text btn-sm" onClick={() => setSearch('')}>Clear</button>
         )}
       </div>
 
-      <div className="panel">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <h2 style={{ fontSize: '16px', fontWeight: 700, margin: 0, color: 'var(--text)' }}>
-            Customer Records ({customers.length} total)
-          </h2>
+      {/* Customer Cards Grid */}
+      {loading ? (
+        <div className="loading-block">Loading customers...</div>
+      ) : visible.length === 0 ? (
+        <div className="panel" style={{ textAlign: 'center', padding: '48px' }}>
+          <svg style={{ width: '48px', height: '48px', color: 'var(--muted)', marginBottom: '16px' }} viewBox="0 0 20 20" fill="none"><circle cx="7.2" cy="6.5" r="2.5" stroke="currentColor" strokeWidth="1.5"/><path d="M2.8 16c.4-2.8 2.2-4.5 4.4-4.5s4 1.7 4.4 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><circle cx="14" cy="6" r="2" stroke="currentColor" strokeWidth="1.4"/><path d="M13 11.7c1.8.2 3.1 1.7 3.4 4.1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
+          <h3>No Customers Found</h3>
+          <p className="muted">No customers match the current search or filter criteria.</p>
         </div>
-        {loading ? (
-          <div className="loading-block">Loading customers...</div>
-        ) : visible.length === 0 ? (
-          <p className="empty-state">No customers to display.</p>
-        ) : (
+      ) : (
+        <div className="panel list-panel">
           <table className="data-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Total Gallons</th>
+                <th>Customer</th>
+                <th>Gallons</th>
                 <th>Undelivered</th>
-                <th>Unpaid</th>
                 <th>Unpaid Balance</th>
-                <th>Quick Action</th>
-                <th></th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {visible.map((c) => (
                 <tr key={c._id}>
-                  <td>{c.name}</td>
-                  <td>{c.totalGallons}</td>
-                  <td>{c.undeliveredCount}</td>
-                  <td>{c.unpaidCount}</td>
-                  <td className={c.unpaidBalance > 0 ? 'text-danger' : ''}>
-                    PHP {c.unpaidBalance.toLocaleString()}
-                  </td>
                   <td>
-                    {c.unpaidBalance > 0 ? (
-                      <button
-                        className="btn btn-outline"
-                        style={{ padding: '4px 10px', fontSize: '12px' }}
-                        onClick={() => quickToggleCustomerPayment(c)}
-                      >
-                        Mark All Paid
+                    <span style={{ fontWeight: '600' }}>{c.name}</span>
+                  </td>
+                  <td>{c.totalGallons}</td>
+                  <td>{c.undeliveredCount > 0 ? <span className="text-danger">{c.undeliveredCount}</span> : '0'}</td>
+                  <td>
+                    <span className={c.unpaidBalance > 0 ? 'text-danger' : ''} style={{ fontWeight: '700' }}>
+                      ₱{c.unpaidBalance.toLocaleString()}
+                    </span>
+                    {c.unpaidBalance > 0 && (
+                      <button className="btn btn-outline btn-sm" style={{ marginLeft: '8px' }} onClick={() => quickToggleCustomerPayment(c)}>
+                        Mark Paid
                       </button>
-                    ) : (
-                      <span className="muted" style={{ fontSize: '12px' }}>Paid</span>
                     )}
                   </td>
                   <td>
                     <Link className="link-button" to={`/admin/customers/${c._id}`}>
-                      View Details
+                      View Details →
                     </Link>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        )}
-      </div>
+        </div>
+      )}
 
+      {/* Add Customer Modal */}
       {showAdd && (
         <Modal title="Add Customer" onClose={() => setShowAdd(false)}>
           <form onSubmit={submitAdd} className="form">
             {formError && <div className="alert alert-error">{formError}</div>}
             <label>
               Full Name
-              <input className="input" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+              <input className="input" required value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Enter customer's full name" />
             </label>
             <label>
               Address
-              <input className="input" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+              <input className="input" value={form.address} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Enter customer's address (optional)" />
             </label>
             <button className="btn btn-primary" type="submit" disabled={saving}>
               {saving ? 'Saving...' : 'Add Customer'}

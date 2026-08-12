@@ -1,14 +1,15 @@
 /* ---------- Form elements ---------- */
 .input {
   width: 100%;
-  padding: 10px 13px;
+  padding: 10px 14px;
   border: 1px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  font-size: 14px;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
   color: var(--text);
   background: var(--surface);
   font-family: inherit;
-  transition: border-color var(--transition), box-shadow var(--transition);
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
 }
 
 .input::placeholder {
@@ -18,26 +19,85 @@
 .input:focus {
   outline: none;
   border-color: var(--teal-600);
-  box-shadow: 0 0 0 3px var(--aqua-100);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .form label {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  font-size: 13px;
-  font-weight: 700;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
   color: var(--text-soft);
   flex: 1;
 }
 
 .form-row {
   display: flex;
-  gap: 14px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.form-row > label {
+  min-width: 200px;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.filter-group label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--text-soft);
+  white-space: nowrap;
+}
+
+.input-w-md {
+  width: 200px;
+}
+
+.input-w-lg {
+  width: 240px;
+}
+
+.input-w-xl {
+  max-width: 400px;
+}
+
+select.input {
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%2364748b' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 1.25rem;
+  padding-right: 36px;
+}
+
+@media (max-width: 640px) {
+  .form-row {
+    flex-direction: column;
+    gap: 14px;
+  }
+  .form-row > label {
+    min-width: 100%;
+  }
+  .input-w-md,
+  .input-w-lg,
+  .input-w-xl {
+    width: 100%;
+    max-width: 100%;
+  }
+  .filter-group {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }

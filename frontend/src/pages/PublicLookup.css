@@ -1,42 +1,72 @@
 /* ---------- Public lookup ---------- */
 .lookup-form {
   display: flex;
-  gap: 10px;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.lookup-form .input {
+  flex: 1;
 }
 
 .lookup-results {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 24px;
 }
 
 .lookup-summary {
   display: flex;
-  gap: 32px;
-  margin: 14px 0 6px;
+  gap: 40px;
+  margin: 16px 0 24px;
   flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px;
 }
 
-/* Local overrides: .lookup-summary sits on a white panel, unlike the
-   dark highlight-banner these labels were originally styled for, so it
-   needs its own light-surface contrast rather than reusing the
-   near-white banner text colors. */
 .lookup-summary .highlight-label {
-  color: var(--text-soft);
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .lookup-summary .highlight-value {
   color: var(--navy-900);
+  font-size: 1.85rem;
+  font-weight: 800;
+  font-family: var(--font-display);
+  letter-spacing: -0.02em;
+  margin-top: 4px;
 }
 
 .lookup-list {
-  margin: 0;
-  padding-left: 18px;
-  font-size: 13.5px;
-  color: var(--text);
+  margin: 12px 0 24px;
+  padding-left: 20px;
+  font-size: 0.9rem;
+  color: var(--text-soft);
 }
 
 .lookup-list li {
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+  line-height: 1.5;
+}
+
+.lookup-list li:last-child {
+  margin-bottom: 0;
+}
+
+@media (max-width: 640px) {
+  .lookup-form {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .lookup-form .btn {
+    width: 100%;
+  }
+  .lookup-summary {
+    grid-template-columns: 1fr !important;
+    gap: 12px !important;
+  }
 }

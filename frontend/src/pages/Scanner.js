@@ -14,7 +14,7 @@ export default function Scanner() {
   const [manualCode, setManualCode] = useState('');
   const [customers, setCustomers] = useState([]);
   const [busy, setBusy] = useState(false);
-  const [quickForm, setQuickForm] = useState({ customer: '', price: 25, size: 'Round' });
+  const [quickForm, setQuickForm] = useState({ customer: '', price: 30, size: 'Round' });
   const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
@@ -84,13 +84,12 @@ export default function Scanner() {
       <div className="page-header">
         <div>
           <h1>Scan Gallon</h1>
-          <p className="page-subtitle">Scan a returned gallon to receive it into the station for refilling.</p>
         </div>
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
 
-      <div style={{ maxWidth: '600px', margin: '0 auto' }}>
+      <div className="scanner-page">
         <div className="panel">
           <h2>Camera</h2>
           <QrScanner onResult={submitScan} onError={setCameraError} paused={busy || showModal} />
@@ -147,37 +146,37 @@ export default function Scanner() {
                   />
                 </label>
               </div>
-              <button className="btn btn-primary" onClick={registerNotFound} disabled={busy} style={{ width: '100%', marginTop: '12px' }}>
+              <button className="btn btn-primary btn-block mt-md" onClick={registerNotFound} disabled={busy}>
                 Register This Gallon
               </button>
             </div>
           )}
 
           {result && (
-            <div className="result-card" style={{ padding: '8px 0' }}>
-              <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                <p className="mono result-code" style={{ fontSize: '20px', fontWeight: 700, margin: '0 0 12px 0' }}>
+            <div className="result-card result-card-tight">
+              <div className="result-header">
+                <p className="mono result-code">
                   {result.qrCode}
                 </p>
-                <div className="result-badges" style={{ justifyContent: 'center', display: 'flex', gap: '8px' }}>
+                <div className="result-badges">
                   <StatusBadge status={result.locationStatus} />
                   <StatusBadge status={result.deliveryStatus} />
                   <StatusBadge status={result.paymentStatus} />
                 </div>
               </div>
 
-              <div style={{ background: 'var(--surface-alt)', padding: '16px', borderRadius: '8px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div className="result-summary">
                 <div>
-                  <span className="muted" style={{ fontSize: '12px' }}>Customer: </span>
+                  <span className="muted text-sm">Customer: </span>
                   <strong>{result.customer?.name || 'Unassigned'}</strong>
                 </div>
                 <div>
-                  <span className="muted" style={{ fontSize: '12px' }}>Size / Price: </span>
+                  <span className="muted text-sm">Size / Price: </span>
                   <strong>{result.size} (PHP {result.price})</strong>
                 </div>
               </div>
 
-              <button className="btn btn-primary" onClick={closeModal} style={{ width: '100%', marginTop: '20px' }}>
+              <button className="btn btn-primary btn-block mt-lg" onClick={closeModal}>
                 Done
               </button>
             </div>

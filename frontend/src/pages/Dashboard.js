@@ -5,28 +5,6 @@ import StatCard from '../components/StatCard.js';
 import StatusBadge from '../components/StatusBadge.js';
 import './Today.css';
 
-const ACTION_LABELS = {
-  registered: 'Registered',
-  returned: 'Returned for refilling',
-  assigned: 'Assigned to customer',
-  delivered: 'Marked delivered',
-  marked_undelivered: 'Marked undelivered',
-  paid: 'Marked paid',
-  marked_unpaid: 'Marked unpaid',
-  walkin_sale: 'Walk-in Sale',
-};
-
-const ACTION_CLASSES = {
-  registered: 'badge-registered',
-  returned: 'badge-returned',
-  assigned: 'badge-assigned',
-  delivered: 'badge-delivered',
-  marked_undelivered: 'badge-undelivered',
-  paid: 'badge-paid',
-  marked_unpaid: 'badge-unpaid',
-  walkin_sale: 'badge-walkin',
-};
-
 export default function Dashboard() {
   const [stats, setStats] = useState(null);
   const [todayData, setTodayData] = useState(null);
@@ -65,183 +43,212 @@ export default function Dashboard() {
 
   return (
     <div className="page">
-      <div className="page-header">
+      <div className="page-header" style={{ marginBottom: '24px' }}>
         <div>
-          <h1>Today's Summary</h1>
-          <p className="page-subtitle">Live daily performance overview and transactions.</p>
+          <h1>Dashboard</h1>
         </div>
-        {/* <div style={{ display: 'flex', gap: '8px' }}>
-          <button className="btn btn-outline" onClick={load} disabled={loading}>
-            Refresh
-          </button>
-          <Link to="/admin/scanner" className="btn btn-primary">
-            Scan a Gallon
+        {/* <div style={{ display: 'flex', gap: '10px' }}>
+          <Link to="/admin/scanner" className="btn btn-primary" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+            Scan Camera
+          </Link>
+          <Link to="/admin/walkin" className="btn btn-outline" style={{ padding: '8px 16px', fontSize: '0.85rem' }}>
+            Walk-in Sales
           </Link>
         </div> */}
       </div>
 
       {error && <div className="alert alert-error">{error}</div>}
-      {loading && !stats && !todayData && <div className="loading-block">Loading dashboard data...</div>}
+      {loading && !stats && !todayData && <div className="loading-block">Loading dashboard metrics...</div>}
 
       {todayData && (
-        <div className="today-stats-grid">
+        <div className="today-stats-grid" style={{ marginBottom: '24px' }}>
           <StatCard
-            label="Gallons for Refill"
+            label="Total Refills Today"
             value={todayData.totalRefillsIncludingWalkIn}
             hint={`${todayData.refillsCount} registered, ${todayData.walkInGallonsCount} walk-in`}
             tone="blue"
           />
           <StatCard
-            label="Delivered"
+            label="Delivered Gallons"
             value={todayData.deliveriesCount}
-            hint="Active gallons delivered today"
+            hint="Delivered to customer sites"
           />
           <StatCard
-            label="Paid"
+            label="Transactions Paid"
             value={todayData.paidCount}
-            hint="Active gallons paid today"
+            hint="Fully collected today"
+            tone="good"
           />
           <StatCard
-            label="Unpaid"
-            value={todayData.unpaidCount}
-            hint="Active gallons unpaid today"
-          />
-          <StatCard
-            label="Total Daily Revenue"
-            value={`PHP ${todayData.totalRevenue}`}
-            hint="Walk-in & registered payments"
+            label="Daily Revenue"
+            value={`₱${todayData.totalRevenue.toLocaleString()}`}
+            hint="Combined walk-in & refills"
             tone="good"
           />
         </div>
       )}
 
-      {stats && (
-        <section className="highlight-banner" style={{ marginBottom: '28px' }}>
-          <div>
-            <div className="highlight-label">Total Outstanding Balance</div>
-            <div className="highlight-value">PHP {stats.unpaidBalance.toLocaleString()}</div>
-          </div>
-          <Link to="/admin/customers" className="btn btn-outline">
-            View Unpaid Customers
-          </Link>
-        </section>
-      )}
+      <div className="dashboard-split-layout">
+        {/* Left Side: Activity Timeline Feed */}
+        <div>
+          {todayData && (() => {
+            const uniqueGallonsMap = {};
+            const walkIns = [];
 
-      {todayData && (() => {
-        const uniqueGallonsMap = {};
-        const walkIns = [];
+            todayData.transactions.forEach((t) => {
+              if (t.isWalkIn) {
+                walkIns.push(t);
+              } else if (t.gallon) {
+                const gallonId = t.gallon._id;
+                if (!uniqueGallonsMap[gallonId]) {
+                  uniqueGallonsMap[gallonId] = {
+                    ...t.gallon,
+                    customer: t.customer,
+                    latestAction: t.action,
+                    latestTime: t.createdAt,
+                    note: t.note,
+                  };
+                }
+              }
+            });
 
-        todayData.transactions.forEach((t) => {
-          if (t.isWalkIn) {
-            walkIns.push(t);
-          } else if (t.gallon) {
-            const gallonId = t.gallon._id;
-            if (!uniqueGallonsMap[gallonId]) {
-              uniqueGallonsMap[gallonId] = {
-                ...t.gallon,
-                customer: t.customer,
-                latestAction: t.action,
-                latestTime: t.createdAt,
-                note: t.note,
-              };
-            }
-          }
-        });
+            const displayRows = [
+              ...Object.values(uniqueGallonsMap).map((g) => ({
+                id: g._id,
+                isWalkIn: false,
+                qrCode: g.qrCode,
+                customerName: g.customer?.name || 'Unassigned Customer',
+                size: g.size,
+                price: g.price,
+                locationStatus: g.locationStatus,
+                deliveryStatus: g.deliveryStatus,
+                paymentStatus: g.paymentStatus,
+                latestAction: g.latestAction,
+                time: g.latestTime,
+                note: g.note,
+                gallonObj: g,
+              })),
+              ...walkIns.map((w) => ({
+                id: w._id,
+                isWalkIn: true,
+                qrCode: '-',
+                customerName: 'Walk-in Cash Customer',
+                size: w.walkInDetails?.size || '-',
+                price: w.walkInDetails?.totalAmount || 0,
+                locationStatus: 'at_station',
+                deliveryStatus: 'delivered',
+                paymentStatus: 'paid',
+                latestAction: 'walkin_sale',
+                time: w.createdAt,
+                note: w.note || `Walk-in cash refill (${w.walkInDetails?.quantity} pcs)`,
+                gallonObj: null,
+              })),
+            ].sort((a, b) => new Date(b.time) - new Date(a.time));
 
-        const displayRows = [
-          ...Object.values(uniqueGallonsMap).map((g) => ({
-            id: g._id,
-            isWalkIn: false,
-            qrCode: g.qrCode,
-            customerName: g.customer?.name || 'Unassigned',
-            size: g.size,
-            price: g.price,
-            locationStatus: g.locationStatus,
-            deliveryStatus: g.deliveryStatus,
-            paymentStatus: g.paymentStatus,
-            latestAction: g.latestAction,
-            time: g.latestTime,
-            note: g.note,
-            gallonObj: g,
-          })),
-          ...walkIns.map((w) => ({
-            id: w._id,
-            isWalkIn: true,
-            qrCode: '-',
-            customerName: 'Walk-in Customer',
-            size: w.walkInDetails?.size || '-',
-            price: w.walkInDetails?.totalAmount || 0,
-            locationStatus: 'at_station',
-            deliveryStatus: 'delivered',
-            paymentStatus: 'paid',
-            latestAction: 'walkin_sale',
-            time: w.createdAt,
-            note: w.note || `Walk-in Sale (${w.walkInDetails?.quantity} pcs)`,
-            gallonObj: null,
-          })),
-        ].sort((a, b) => new Date(b.time) - new Date(a.time));
+            return (
+              <section className="panel" style={{ padding: '24px' }}>
+                <h2 style={{ fontSize: '1.15rem', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--teal-600)' }} />
+                  Today's Activity ({displayRows.length})
+                </h2>
+                {displayRows.length === 0 ? (
+                  <p className="empty-state">No transaction logs recorded at the station today yet.</p>
+                ) : (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                    {displayRows.map((row) => (
+                      <div key={row.id} style={{ display: 'flex', gap: '14px', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
+                        <div style={{ fontSize: '0.85rem', color: 'var(--muted)', width: '68px', paddingTop: '2px', fontWeight: '500' }}>
+                          {new Date(row.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                              <strong style={{ fontSize: '0.95rem' }}>{row.customerName}</strong>
+                              <StatusBadge status={row.deliveryStatus} />
+                              <StatusBadge status={row.paymentStatus} />
+                            </div>
+                            {row.gallonObj && (
+                              <div style={{ display: 'flex', gap: '6px' }}>
+                                  <button
+                                    className="btn-icon btn-icon-delivery"
+                                    data-tooltip={row.deliveryStatus === 'delivered' ? 'Mark Undelivered' : 'Mark Delivered'}
+                                    title={row.deliveryStatus === 'delivered' ? 'Mark Undelivered' : 'Mark Delivered'}
+                                    onClick={() => quickToggle(row.gallonObj, 'deliveryStatus', row.deliveryStatus === 'delivered' ? 'undelivered' : 'delivered')}
+                                  >
+                                    {row.deliveryStatus === 'delivered' ? (
+                                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M5 15L15 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                    ) : (
+                                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 10.5l4 4 10-10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                    )}
+                                  </button>
+                                  <button
+                                    className="btn-icon btn-icon-payment"
+                                    data-tooltip={row.paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
+                                    title={row.paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
+                                    onClick={() => quickToggle(row.gallonObj, 'paymentStatus', row.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
+                                  >
+                                    {row.paymentStatus === 'paid' ? (
+                                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v14M8 3h4.5a3.5 3.5 0 0 1 0 7H8M5 6.5h8M5 8.5h8M15 5L5 15"/></svg>
+                                    ) : (
+                                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v14M8 3h4.5a3.5 3.5 0 0 1 0 7H8M5 6.5h8M5 8.5h8"/></svg>
+                                    )}
+                                  </button>
+                              </div>
+                            )}
+                          </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', fontSize: '0.85rem', color: 'var(--text-soft)' }}>
+                            <span className="mono" style={{ padding: '2px 6px', background: 'var(--surface-alt)', borderRadius: '4px' }}>
+                              QR: {row.qrCode}
+                            </span>
+                            <span>&bull;</span>
+                            <span>{row.size}</span>
+                            <span>&bull;</span>
+                            <span style={{ fontWeight: '600' }}>₱{row.price}</span>
+                          </div>
+                          {row.note && <div style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '4px', fontStyle: 'italic' }}>Note: {row.note}</div>}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </section>
+            );
+          })()}
+        </div>
 
-        return (
-          <section className="panel list-panel">
-            <h2>Today's Active Gallons & Sales ({displayRows.length})</h2>
-            {displayRows.length === 0 ? (
-              <p className="empty-state">No activity recorded today yet.</p>
-            ) : (
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Latest Time</th>
-                    <th>Gallon QR</th>
-                    <th>Customer</th>
-                    <th>Size/Price</th>
-                    <th>Delivery</th>
-                    <th>Payment</th>
-                    <th>Note</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {displayRows.map((row) => (
-                    <tr key={row.id}>
-                      <td>{new Date(row.time).toLocaleTimeString()}</td>
-                      <td className="mono">{row.qrCode}</td>
-                      <td>{row.customerName}</td>
-                      <td>{row.size} (PHP {row.price})</td>
-                      <td>
-                        {row.gallonObj ? (
-                          <button
-                            className="badge-button"
-                            onClick={() => quickToggle(row.gallonObj, 'deliveryStatus', row.deliveryStatus === 'delivered' ? 'undelivered' : 'delivered')}
-                            title="Click to toggle delivery status"
-                          >
-                            <StatusBadge status={row.deliveryStatus} />
-                          </button>
-                        ) : (
-                          <StatusBadge status={row.deliveryStatus} />
-                        )}
-                      </td>
-                      <td>
-                        {row.gallonObj ? (
-                          <button
-                            className="badge-button"
-                            onClick={() => quickToggle(row.gallonObj, 'paymentStatus', row.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
-                            title="Click to toggle payment status"
-                          >
-                            <StatusBadge status={row.paymentStatus} />
-                          </button>
-                        ) : (
-                          <StatusBadge status={row.paymentStatus} />
-                        )}
-                      </td>
-                      <td className="muted">{row.note}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </section>
-        );
-      })()}
+        {/* Right Side: Unpaid summary & shortcuts */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          {stats && (
+            <div className="panel" style={{ background: 'var(--gradient-panel)', color: '#ffffff', border: 'none', padding: '24px' }}>
+              <div className="highlight-label" style={{ color: 'rgba(255,255,255,0.7)' }}> Unpaid Balance</div>
+              <div className="highlight-value" style={{ fontSize: '2rem', marginTop: '6px', color: '#ffffff', letterSpacing: '-0.02em', fontWeight: '800' }}>
+                ₱{stats.unpaidBalance.toLocaleString()}
+              </div>
+              <Link to="/admin/customers" className="btn btn-outline" style={{ marginTop: '16px', width: '100%', borderColor: 'rgba(255,255,255,0.2)', color: '#ffffff', background: 'rgba(255,255,255,0.08)' }}>
+                View Unpaid Customers &rarr;
+              </Link>
+            </div>
+          )}
+
+          {/* <div className="panel" style={{ padding: '24px' }}>
+            <h3 style={{ marginTop: 0, marginBottom: '14px', fontSize: '1rem', fontWeight: '700' }}>Station Utilities</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <Link to="/admin/gallons" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', background: 'var(--surface-alt)', borderRadius: 'var(--radius)', color: 'var(--text)', fontSize: '0.9rem', fontWeight: '600' }}>
+                <span>Gallon Inventory</span>
+                <span>&rarr;</span>
+              </Link>
+              <Link to="/admin/customers" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', background: 'var(--surface-alt)', borderRadius: 'var(--radius)', color: 'var(--text)', fontSize: '0.9rem', fontWeight: '600' }}>
+                <span>Manage Customers</span>
+                <span>&rarr;</span>
+              </Link>
+              <Link to="/admin/transactions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 14px', background: 'var(--surface-alt)', borderRadius: 'var(--radius)', color: 'var(--text)', fontSize: '0.9rem', fontWeight: '600' }}>
+                <span>View Transaction Logs</span>
+                <span>&rarr;</span>
+              </Link>
+            </div>
+          </div> */}
+        </div>
+      </div>
     </div>
   );
 }
-
