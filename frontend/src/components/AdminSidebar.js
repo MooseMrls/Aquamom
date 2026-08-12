@@ -67,9 +67,9 @@ const icons = {
 
 const links = [
   { to: '/admin', label: 'Dashboard', icon: 'dashboard', end: true },
+  { to: '/admin/scanner', label: 'Scanner', icon: 'scanner' },
+  { to: '/admin/walkin', label: 'Walk-in', icon: 'walkin' },
   { to: '/admin/gallons', label: 'Gallons', icon: 'gallons' },
-  { to: '/admin/scanner', label: 'Scan Gallon', icon: 'scanner' },
-  { to: '/admin/walkin', label: 'Walk-in Sales', icon: 'walkin' },
   { to: '/admin/customers', label: 'Customers', icon: 'customers' },
   { to: '/admin/transactions', label: 'Transactions', icon: 'transactions' },
 ];

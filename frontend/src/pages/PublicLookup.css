@@ -64,6 +64,8 @@
   }
   .lookup-form .btn {
     width: 100%;
+    padding-top: 12px;
+    padding-bottom: 12px;
   }
   .lookup-summary {
     grid-template-columns: 1fr !important;

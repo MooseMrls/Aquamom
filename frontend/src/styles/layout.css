@@ -110,6 +110,30 @@
   .page-subtitle {
     font-size: 0.85rem;
   }
+
+  /* Headers that pair a title with an action button (e.g. "+ Register New
+     Gallon", "+ Add Customer") stay on one row, with the button pinned to
+     the right, instead of stacking the button below the title. */
+  .page-header-actions {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+  }
+  .page-header-actions > div:first-child {
+    min-width: 0;
+  }
+  .page-header-actions h1 {
+    font-size: 1.15rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .page-header-actions .btn {
+    flex-shrink: 0;
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    white-space: nowrap;
+  }
 }
 
 /* ---------- Navigation Elements ---------- */

@@ -54,3 +54,20 @@
   align-items: center;
   gap: 4px;
 }
+
+@media (max-width: 640px) {
+  .stat-card {
+    padding: 16px;
+  }
+  .stat-label {
+    font-size: 0.68rem;
+    margin-bottom: 6px;
+  }
+  .stat-value {
+    font-size: 1.4rem;
+  }
+  .stat-hint {
+    font-size: 0.72rem;
+    margin-top: 6px;
+  }
+}

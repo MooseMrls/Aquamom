@@ -23,13 +23,7 @@
 @media (max-width: 640px) {
   .today-stats-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
-  }
-}
-
-@media (max-width: 420px) {
-  .today-stats-grid {
-    grid-template-columns: 1fr;
+    gap: 10px;
   }
 }
 

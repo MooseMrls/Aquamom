@@ -44,19 +44,6 @@ export default function Customers() {
     }
   };
 
-  const quickToggleCustomerPayment = async (customer) => {
-    try {
-      const customerGallons = await api.get(`/customers/${customer._id}`);
-      const unpaidGallons = customerGallons.data.gallons.filter((g) => g.paymentStatus === 'unpaid');
-      for (const g of unpaidGallons) {
-        await api.patch(`/gallons/${g._id}`, { paymentStatus: 'paid' });
-      }
-      load();
-    } catch (err) {
-      setError(errorMessage(err, 'Failed to update payment status.'));
-    }
-  };
-
   const visible = customers.filter((c) => {
     if (onlyUnpaid && c.unpaidBalance <= 0) return false;
     if (search.trim()) {
@@ -70,7 +57,7 @@ export default function Customers() {
 
   return (
     <div className="page">
-      <div className="page-header">
+      <div className="page-header page-header-actions">
         <div>
           <h1>Customer Directory</h1>
         </div>
@@ -130,7 +117,7 @@ export default function Customers() {
                 <th>Gallons</th>
                 <th>Undelivered</th>
                 <th>Unpaid Balance</th>
-                <th>Actions</th>
+                <th></th>
               </tr>
             </thead>
             <tbody>
@@ -145,11 +132,6 @@ export default function Customers() {
                     <span className={c.unpaidBalance > 0 ? 'text-danger' : ''} style={{ fontWeight: '700' }}>
                       ₱{c.unpaidBalance.toLocaleString()}
                     </span>
-                    {c.unpaidBalance > 0 && (
-                      <button className="btn btn-outline btn-sm" style={{ marginLeft: '8px' }} onClick={() => quickToggleCustomerPayment(c)}>
-                        Mark Paid
-                      </button>
-                    )}
                   </td>
                   <td>
                     <Link className="link-button" to={`/admin/customers/${c._id}`}>

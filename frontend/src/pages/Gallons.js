@@ -165,12 +165,12 @@ export default function Gallons() {
 
   return (
     <div className="page">
-      <div className="page-header">
+      <div className="page-header page-header-actions">
         <div>
           <h1>Gallon Inventory</h1>
         </div>
         <button className="btn btn-primary" onClick={openRegister}>
-          + Register New Gallon
+          + New Gallon
         </button>
       </div>
 
