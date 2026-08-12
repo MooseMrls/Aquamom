@@ -2,13 +2,22 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api, { errorMessage } from '../api.js';
 import Modal from '../components/Modal.js';
+import Pagination from '../components/Pagination.js';
 import './Customers.css';
+
+const PAGE_SIZE = 20;
 
 export default function Customers() {
   const [customers, setCustomers] = useState([]);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [pages, setPages] = useState(1);
+  const [totalOutstanding, setTotalOutstanding] = useState(0);
+  const [totalCustomers, setTotalCustomers] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [onlyUnpaid, setOnlyUnpaid] = useState(false);
   const [showAdd, setShowAdd] = useState(false);
   const [form, setForm] = useState({ name: '', address: '' });
@@ -18,15 +27,40 @@ export default function Customers() {
   const load = () => {
     setLoading(true);
     api
-      .get('/customers')
-      .then((res) => setCustomers(res.data))
+      .get('/customers', {
+        params: {
+          page,
+          limit: PAGE_SIZE,
+          search: debouncedSearch || undefined,
+          unpaidOnly: onlyUnpaid || undefined,
+        },
+      })
+      .then((res) => {
+        setCustomers(res.data.customers);
+        setTotal(res.data.total);
+        setPages(res.data.pages);
+        setTotalOutstanding(res.data.totalOutstanding);
+        setTotalCustomers(res.data.totalCustomers);
+      })
       .catch((err) => setError(errorMessage(err, 'Failed to load customers.')))
       .finally(() => setLoading(false));
   };
 
+  // Debounce the search box so we're not firing a request on every keystroke.
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search), 300);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  // Jump back to page 1 whenever the search or filter changes.
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, onlyUnpaid]);
+
   useEffect(() => {
     load();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [page, debouncedSearch, onlyUnpaid]);
 
   const submitAdd = async (e) => {
     e.preventDefault();
@@ -43,17 +77,6 @@ export default function Customers() {
       setSaving(false);
     }
   };
-
-  const visible = customers.filter((c) => {
-    if (onlyUnpaid && c.unpaidBalance <= 0) return false;
-    if (search.trim()) {
-      const q = search.toLowerCase().trim();
-      return c.name?.toLowerCase().includes(q);
-    }
-    return true;
-  });
-
-  const totalOutstanding = customers.reduce((sum, c) => sum + c.unpaidBalance, 0);
 
   return (
     <div className="page">
@@ -75,7 +98,7 @@ export default function Customers() {
           <div className="customers-balance-value">₱{totalOutstanding.toLocaleString()}</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>{customers.length} total customers</span>
+          <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>{totalCustomers} total customers</span>
           <label className="customers-toggle">
             <input type="checkbox" checked={onlyUnpaid} onChange={(e) => setOnlyUnpaid(e.target.checked)} />
             <span>Unpaid only</span>
@@ -102,7 +125,7 @@ export default function Customers() {
       {/* Customer Cards Grid */}
       {loading ? (
         <div className="loading-block">Loading customers...</div>
-      ) : visible.length === 0 ? (
+      ) : customers.length === 0 ? (
         <div className="panel" style={{ textAlign: 'center', padding: '48px' }}>
           <svg style={{ width: '48px', height: '48px', color: 'var(--muted)', marginBottom: '16px' }} viewBox="0 0 20 20" fill="none"><circle cx="7.2" cy="6.5" r="2.5" stroke="currentColor" strokeWidth="1.5"/><path d="M2.8 16c.4-2.8 2.2-4.5 4.4-4.5s4 1.7 4.4 4.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/><circle cx="14" cy="6" r="2" stroke="currentColor" strokeWidth="1.4"/><path d="M13 11.7c1.8.2 3.1 1.7 3.4 4.1" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round"/></svg>
           <h3>No Customers Found</h3>
@@ -121,7 +144,7 @@ export default function Customers() {
               </tr>
             </thead>
             <tbody>
-              {visible.map((c) => (
+              {customers.map((c) => (
                 <tr key={c._id}>
                   <td>
                     <span style={{ fontWeight: '600' }}>{c.name}</span>
@@ -142,6 +165,7 @@ export default function Customers() {
               ))}
             </tbody>
           </table>
+          <Pagination page={page} pages={pages} total={total} limit={PAGE_SIZE} onPageChange={setPage} />
         </div>
       )}
 

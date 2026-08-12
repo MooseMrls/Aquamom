@@ -27,7 +27,7 @@ export default function Scanner() {
   const searchBoxRef = useRef(null);
 
   useEffect(() => {
-    api.get('/customers').then((res) => setCustomers(res.data)).catch(() => {});
+    api.get('/customers', { params: { limit: 1000 } }).then((res) => setCustomers(res.data.customers)).catch(() => {});
   }, []);
 
   // Close the suggestions dropdown when clicking outside the search box.
@@ -63,8 +63,8 @@ export default function Scanner() {
     setGallonsError('');
     setGallonsLoading(true);
     api
-      .get('/gallons', { params: { customer: customer._id } })
-      .then((res) => setCustomerGallons(res.data))
+      .get('/gallons', { params: { customer: customer._id, limit: 100 } })
+      .then((res) => setCustomerGallons(res.data.gallons))
       .catch((err) => setGallonsError(errorMessage(err, 'Failed to load this customer\'s gallons.')))
       .finally(() => setGallonsLoading(false));
   };

@@ -2,14 +2,19 @@ import { useEffect, useState } from 'react';
 import api, { errorMessage } from '../api.js';
 import StatusBadge from '../components/StatusBadge.js';
 import Modal from '../components/Modal.js';
+import Pagination from '../components/Pagination.js';
 import './Gallons.css';
 
 const emptyForm = { qrCode: '', customer: '', size: 'Round', price: 30 };
+const PAGE_SIZE = 20;
 
 export default function Gallons() {
   const [gallons, setGallons] = useState([]);
   const [customers, setCustomers] = useState([]);
   const [filters, setFilters] = useState({ search: '', locationStatus: '', deliveryStatus: '', paymentStatus: '' });
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
@@ -28,21 +33,25 @@ export default function Gallons() {
 
   const loadGallons = () => {
     setLoading(true);
-    const params = {};
+    const params = { page, limit: PAGE_SIZE };
     Object.entries(filters).forEach(([k, v]) => {
       if (v) params[k] = v;
     });
     api
       .get('/gallons', { params })
-      .then((res) => setGallons(res.data))
+      .then((res) => {
+        setGallons(res.data.gallons);
+        setTotal(res.data.total);
+        setPages(res.data.pages);
+      })
       .catch((err) => setError(errorMessage(err, 'Failed to load gallons.')))
       .finally(() => setLoading(false));
   };
 
   const loadCustomers = () => {
     api
-      .get('/customers')
-      .then((res) => setCustomers(res.data))
+      .get('/customers', { params: { limit: 1000 } })
+      .then((res) => setCustomers(res.data.customers))
       .catch(() => {});
   };
 
@@ -50,10 +59,17 @@ export default function Gallons() {
     loadCustomers();
   }, []);
 
+  // Jump back to page 1 whenever the filters change, so a narrowed search
+  // never leaves the user stranded on a page past the end of the results.
+  useEffect(() => {
+    setPage(1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters]);
+
   useEffect(() => {
     loadGallons();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters]);
+  }, [filters, page]);
 
   const openRegister = () => {
     setForm(emptyForm);
@@ -209,7 +225,7 @@ export default function Gallons() {
       {/* Results Summary */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
         <span style={{ fontSize: '0.85rem', color: 'var(--muted)', fontWeight: '600' }}>
-          {gallons.length} gallon{gallons.length !== 1 ? 's' : ''} found
+          {total} gallon{total !== 1 ? 's' : ''} found
         </span>
       </div>
 
@@ -275,6 +291,7 @@ export default function Gallons() {
               ))}
             </tbody>
           </table>
+          <Pagination page={page} pages={pages} total={total} limit={PAGE_SIZE} onPageChange={setPage} />
         </div>
       )}
 
