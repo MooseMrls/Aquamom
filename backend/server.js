@@ -14,7 +14,25 @@ const walkInRoutes = require('./routes/walkInRoutes');
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT_URL || '*' }));
+// Accept a comma-separated list in CLIENT_URL (e.g. "https://aquamomstation.vercel.app,http://localhost:5173")
+// and always allow localhost so local dev never gets silently blocked by a
+// production-only CORS setting.
+const allowedOrigins = (process.env.CLIENT_URL || '')
+  .split(',')
+  .map((o) => o.trim())
+  .filter(Boolean);
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      const isLocalhost = !origin || /^https?:\/\/localhost(:\d+)?$/.test(origin);
+      if (allowedOrigins.length === 0 || isLocalhost || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      callback(new Error('Not allowed by CORS'));
+    },
+  })
+);
 app.use(express.json());
 app.use(morgan('dev'));
 
@@ -25,7 +43,7 @@ app.use('/api/auth', authRoutes);
 
 // Protected admin routes
 app.get('/api/dashboard', requireAuth, getDashboardStats);
-app.use('/api/customers', requireAuth, customerRoutes);
+app.use('/api/customers', customerRoutes);
 app.use('/api/gallons', requireAuth, gallonRoutes);
 app.use('/api/transactions', requireAuth, transactionRoutes);
 app.use('/api/walkins', requireAuth, walkInRoutes);

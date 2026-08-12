@@ -41,13 +41,16 @@ exports.createGallon = async (req, res) => {
 };
 
 // GET /api/gallons
+// Supports pagination via `page` and `limit` query params so the admin
+// console doesn't have to load the entire gallon inventory at once.
 exports.getGallons = async (req, res) => {
   try {
-    const { search, locationStatus, deliveryStatus, paymentStatus, customer } = req.query;
+    const { search, locationStatus, deliveryStatus, paymentStatus, customer, page = 1, limit = 20 } = req.query;
     const filter = {};
     if (locationStatus) filter.locationStatus = locationStatus;
     if (deliveryStatus) filter.deliveryStatus = deliveryStatus;
     if (paymentStatus) filter.paymentStatus = paymentStatus;
+    if (customer) filter.customer = customer;
     if (search && search.trim()) {
       const searchRegex = new RegExp(search.trim(), 'i');
       const matchedCustomers = await Customer.find({ name: searchRegex }).select('_id');
@@ -58,12 +61,25 @@ exports.getGallons = async (req, res) => {
       ];
     }
 
-    const gallons = await Gallon.find(filter)
-      .populate('customer', 'name phone')
-      .sort({ updatedAt: -1 })
-      .lean();
+    const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+    const limitNum = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100);
 
-    res.json(gallons);
+    const [gallons, total] = await Promise.all([
+      Gallon.find(filter)
+        .populate('customer', 'name phone')
+        .sort({ updatedAt: -1 })
+        .skip((pageNum - 1) * limitNum)
+        .limit(limitNum)
+        .lean(),
+      Gallon.countDocuments(filter),
+    ]);
+
+    res.json({
+      gallons,
+      total,
+      page: pageNum,
+      pages: Math.max(Math.ceil(total / limitNum), 1),
+    });
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch gallons.', error: err.message });
   }

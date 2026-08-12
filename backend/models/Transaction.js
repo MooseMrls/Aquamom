@@ -25,8 +25,8 @@ const transactionSchema = new mongoose.Schema(
     walkInDetails: {
       size: { type: String, default: 'Round' },
       quantity: { type: Number, default: 1 },
-      pricePerUnit: { type: Number, default: 25 },
-      totalAmount: { type: Number, default: 25 },
+      pricePerUnit: { type: Number, default: 30 },
+      totalAmount: { type: Number, default: 30 },
     },
   },
   { timestamps: true }

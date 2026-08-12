@@ -91,50 +91,42 @@ exports.getTodayStats = async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    // Group transactions by gallon to get unique active gallons
-    const uniqueGallonsMap = {};
+    // Aquamom reuses one Gallon document per physical container across many
+    // refill cycles (scan in -> deliver -> pay -> scan in again...), so we
+    // must tally each event as it happened rather than deduping by gallon
+    // and reading its current live status. Reading current status would
+    // make a second same-day scan erase the first cycle's delivery/payment
+    // instead of adding a new cycle on top of it.
     let refillsCount = 0;
     let walkInGallonsCount = 0;
     let walkInRevenue = 0;
+    let deliveriesCount = 0;
+    let paidCount = 0;
+    let standardPaymentsRevenue = 0;
 
     transactions.forEach((t) => {
       if (t.isWalkIn) {
         walkInGallonsCount += t.walkInDetails?.quantity || 0;
         walkInRevenue += t.walkInDetails?.totalAmount || 0;
-      } else if (t.gallon) {
-        const gallonId = String(t.gallon._id);
-        if (!uniqueGallonsMap[gallonId]) {
-          uniqueGallonsMap[gallonId] = {
-            gallon: t.gallon,
-            hasReturned: false,
-          };
-        }
-        if (t.action === 'returned') {
-          uniqueGallonsMap[gallonId].hasReturned = true;
-        }
+        return;
       }
-    });
+      if (!t.gallon) return;
 
-    let deliveriesCount = 0;
-    let undeliveredCount = 0;
-    let paidCount = 0;
-    let unpaidCount = 0;
-    let standardPaymentsRevenue = 0;
-
-    Object.values(uniqueGallonsMap).forEach((item) => {
-      if (item.hasReturned) {
-        refillsCount++;
-      }
-      if (item.gallon.deliveryStatus === 'delivered') {
-        deliveriesCount++;
-      } else {
-        undeliveredCount++;
-      }
-      if (item.gallon.paymentStatus === 'paid') {
-        paidCount++;
-        standardPaymentsRevenue += item.gallon.price || 25;
-      } else {
-        unpaidCount++;
+      switch (t.action) {
+        case 'returned':
+          // Every scan-in starts a new refill cycle for this gallon, even
+          // if the same physical gallon was scanned in more than once today.
+          refillsCount += 1;
+          break;
+        case 'delivered':
+          deliveriesCount += 1;
+          break;
+        case 'paid':
+          paidCount += 1;
+          standardPaymentsRevenue += t.gallon.price || 25;
+          break;
+        default:
+          break;
       }
     });
 
@@ -146,9 +138,7 @@ exports.getTodayStats = async (req, res) => {
       walkInGallonsCount,
       totalRefillsIncludingWalkIn,
       deliveriesCount,
-      undeliveredCount,
       paidCount,
-      unpaidCount,
       standardPaymentsRevenue,
       walkInRevenue,
       totalRevenue,

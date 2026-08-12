@@ -20,27 +20,106 @@ exports.createCustomer = async (req, res) => {
 };
 
 // GET /api/customers
-// Returns every customer along with computed gallon counts and unpaid balance.
+// Returns a paginated page of customers with computed gallon counts and
+// unpaid balance, plus the outstanding-balance/customer-count totals across
+// the whole directory (unaffected by search/filter) for the summary banner.
+// Computed with a $lookup aggregation instead of pulling every gallon into
+// Node and cross-referencing it in JS, which is what made this page slow.
 exports.getCustomers = async (req, res) => {
   try {
-    const customers = await Customer.find().sort({ name: 1 }).lean();
-    const gallons = await Gallon.find().lean();
+    const { search, unpaidOnly, page = 1, limit = 20 } = req.query;
+    const pageNum = Math.max(parseInt(page, 10) || 1, 1);
+    const limitNum = Math.min(Math.max(parseInt(limit, 10) || 20, 1), 100);
 
-    const withStats = customers.map((c) => {
-      const own = gallons.filter((g) => g.customer && String(g.customer) === String(c._id));
-      const unpaidGallons = own.filter((g) => g.paymentStatus === 'unpaid');
-      const undeliveredGallons = own.filter((g) => g.deliveryStatus === 'undelivered');
-      const unpaidBalance = unpaidGallons.reduce((sum, g) => sum + (g.price || 0), 0);
-      return {
-        ...c,
-        totalGallons: own.length,
-        unpaidCount: unpaidGallons.length,
-        undeliveredCount: undeliveredGallons.length,
-        unpaidBalance,
-      };
+    const matchStage = {};
+    if (search && search.trim()) {
+      matchStage.name = new RegExp(search.trim(), 'i');
+    }
+
+    const withStatsPipeline = [
+      { $match: matchStage },
+      {
+        $lookup: {
+          from: 'gallons',
+          localField: '_id',
+          foreignField: 'customer',
+          as: 'gallons',
+        },
+      },
+      {
+        $addFields: {
+          totalGallons: { $size: '$gallons' },
+          unpaidCount: {
+            $size: { $filter: { input: '$gallons', as: 'g', cond: { $eq: ['$$g.paymentStatus', 'unpaid'] } } },
+          },
+          undeliveredCount: {
+            $size: { $filter: { input: '$gallons', as: 'g', cond: { $eq: ['$$g.deliveryStatus', 'undelivered'] } } },
+          },
+          unpaidBalance: {
+            $sum: {
+              $map: {
+                input: { $filter: { input: '$gallons', as: 'g', cond: { $eq: ['$$g.paymentStatus', 'unpaid'] } } },
+                as: 'g',
+                in: '$$g.price',
+              },
+            },
+          },
+        },
+      },
+      { $project: { gallons: 0 } },
+    ];
+
+    if (unpaidOnly === 'true') {
+      withStatsPipeline.push({ $match: { unpaidBalance: { $gt: 0 } } });
+    }
+
+    const [page1] = await Customer.aggregate([
+      ...withStatsPipeline,
+      { $sort: { name: 1 } },
+      {
+        $facet: {
+          data: [{ $skip: (pageNum - 1) * limitNum }, { $limit: limitNum }],
+          totalCount: [{ $count: 'count' }],
+        },
+      },
+    ]);
+
+    const customers = page1?.data || [];
+    const total = page1?.totalCount?.[0]?.count || 0;
+
+    const [globalStats] = await Customer.aggregate([
+      {
+        $lookup: {
+          from: 'gallons',
+          localField: '_id',
+          foreignField: 'customer',
+          as: 'gallons',
+        },
+      },
+      {
+        $project: {
+          unpaidBalance: {
+            $sum: {
+              $map: {
+                input: { $filter: { input: '$gallons', as: 'g', cond: { $eq: ['$$g.paymentStatus', 'unpaid'] } } },
+                as: 'g',
+                in: '$$g.price',
+              },
+            },
+          },
+        },
+      },
+      { $group: { _id: null, totalOutstanding: { $sum: '$unpaidBalance' }, totalCustomers: { $sum: 1 } } },
+    ]);
+
+    res.json({
+      customers,
+      total,
+      page: pageNum,
+      pages: Math.max(Math.ceil(total / limitNum), 1),
+      totalOutstanding: globalStats?.totalOutstanding || 0,
+      totalCustomers: globalStats?.totalCustomers || 0,
     });
-
-    res.json(withStats);
   } catch (err) {
     res.status(500).json({ message: 'Failed to fetch customers.', error: err.message });
   }

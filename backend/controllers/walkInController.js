@@ -6,7 +6,7 @@ exports.createWalkInSale = async (req, res) => {
     const { size, quantity, pricePerUnit, note } = req.body;
 
     const qty = Math.max(1, parseInt(quantity || 1));
-    const price = Math.max(0, parseFloat(pricePerUnit || 25));
+    const price = Math.max(0, parseFloat(pricePerUnit || 30));
     const total = qty * price;
 
     const actionNote = note && note.trim()

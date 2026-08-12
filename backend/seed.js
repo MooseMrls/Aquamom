@@ -40,7 +40,7 @@ async function seed() {
     const gallon = await Gallon.create({
       qrCode: generateGallonCode(),
       customer: g.customer,
-      price: 25,
+      price: 30,
       deliveryStatus: g.deliveryStatus,
       paymentStatus: g.paymentStatus,
       locationStatus: g.locationStatus,
