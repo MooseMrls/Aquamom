@@ -40,9 +40,15 @@ export default function Gallons() {
     api
       .get('/gallons', { params })
       .then((res) => {
-        setGallons(res.data.gallons);
-        setTotal(res.data.total);
-        setPages(res.data.pages);
+        if (Array.isArray(res.data)) {
+          setGallons(res.data);
+          setTotal(res.data.length);
+          setPages(1);
+        } else {
+          setGallons(res.data?.gallons || []);
+          setTotal(res.data?.total || 0);
+          setPages(res.data?.pages || 1);
+        }
       })
       .catch((err) => setError(errorMessage(err, 'Failed to load gallons.')))
       .finally(() => setLoading(false));
@@ -51,7 +57,13 @@ export default function Gallons() {
   const loadCustomers = () => {
     api
       .get('/customers', { params: { limit: 1000 } })
-      .then((res) => setCustomers(res.data.customers))
+      .then((res) => {
+        if (Array.isArray(res.data)) {
+          setCustomers(res.data);
+        } else {
+          setCustomers(res.data?.customers || []);
+        }
+      })
       .catch(() => {});
   };
 

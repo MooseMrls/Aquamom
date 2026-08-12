@@ -36,11 +36,19 @@ export default function Customers() {
         },
       })
       .then((res) => {
-        setCustomers(res.data.customers);
-        setTotal(res.data.total);
-        setPages(res.data.pages);
-        setTotalOutstanding(res.data.totalOutstanding);
-        setTotalCustomers(res.data.totalCustomers);
+        if (Array.isArray(res.data)) {
+          setCustomers(res.data);
+          setTotal(res.data.length);
+          setPages(1);
+          setTotalCustomers(res.data.length);
+          setTotalOutstanding(res.data.reduce((sum, c) => sum + (c.unpaidBalance || 0), 0));
+        } else {
+          setCustomers(res.data?.customers || []);
+          setTotal(res.data?.total || 0);
+          setPages(res.data?.pages || 1);
+          setTotalOutstanding(res.data?.totalOutstanding || 0);
+          setTotalCustomers(res.data?.totalCustomers || 0);
+        }
       })
       .catch((err) => setError(errorMessage(err, 'Failed to load customers.')))
       .finally(() => setLoading(false));
