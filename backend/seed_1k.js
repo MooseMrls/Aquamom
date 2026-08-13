@@ -53,8 +53,9 @@ async function seed1K() {
     Admin.deleteMany({})
   ]);
 
-  console.log('Creating default admin user...');
+  console.log('Creating default admin users...');
   await Admin.create({ username: 'admin', password: 'admin123' });
+  await Admin.create({ username: 'aquamom', password: 'amws26' });
 
   console.log('Generating 1,000 sample customer profiles...');
   const customerDocs = [];

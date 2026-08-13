@@ -13,9 +13,11 @@ async function seed() {
   console.log('Clearing existing data...');
   await Promise.all([Customer.deleteMany({}), Gallon.deleteMany({}), Transaction.deleteMany({}), Admin.deleteMany({})]);
 
-  console.log('Creating default admin user...');
+  console.log('Creating default admin users...');
   await Admin.create({ username: 'admin', password: 'admin123' });
+  await Admin.create({ username: 'aquamom', password: 'amws26' });
   console.log('  Admin credentials → username: admin / password: admin123');
+  console.log('  Admin credentials → username: aquamom / password: amws26');
 
 
   console.log('Creating sample customers...');
