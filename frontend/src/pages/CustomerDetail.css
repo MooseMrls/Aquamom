@@ -154,3 +154,24 @@
   gap: 8px;
   flex-wrap: wrap;
 }
+
+@media (max-width: 380px) {
+  .cd-profile-card {
+    padding: 22px 16px;
+  }
+  .cd-stats {
+    gap: 6px;
+  }
+  .cd-stat {
+    padding: 8px 2px;
+  }
+  .cd-stat-value {
+    font-size: 1.05rem;
+  }
+  .cd-stat-label {
+    font-size: 0.6rem;
+  }
+  .cd-balance-value {
+    font-size: 1.3rem;
+  }
+}

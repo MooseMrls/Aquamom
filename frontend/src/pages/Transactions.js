@@ -103,10 +103,7 @@ function groupByDay(transactions) {
 }
 
 export default function Transactions() {
-  const [filterType, setFilterType] = useState('week');
-  const [selectedWeek, setSelectedWeek] = useState('');
   const [selectedMonth, setSelectedMonth] = useState('');
-  const [selectedDate, setSelectedDate] = useState('');
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -131,58 +128,9 @@ export default function Transactions() {
     return { startDate: formatDate(firstDay), endDate: formatDate(lastDay) };
   };
 
-  const getCurrentWeekString = () => {
-    const today = new Date();
-    const target = new Date(today.valueOf());
-    const dayNr = (today.getDay() + 6) % 7;
-    target.setDate(target.getDate() - dayNr + 3);
-    const firstThursday = target.valueOf();
-    target.setMonth(0, 1);
-    if (target.getDay() !== 4) {
-      target.setMonth(0, 1 + ((4 - target.getDay() + 7) % 7));
-    }
-    const weekNumber = 1 + Math.round((firstThursday - target.valueOf()) / 604800000);
-    const year = target.getFullYear();
-    return `${year}-W${weekNumber.toString().padStart(2, '0')}`;
-  };
-
-  const getWeekRange = (weekStr) => {
-    if (!weekStr) return { startDate: '', endDate: '' };
-    const [yearStr, weekNumStr] = weekStr.split('-W');
-    const year = parseInt(yearStr, 10);
-    const week = parseInt(weekNumStr, 10);
-    const simple = new Date(year, 0, 1 + (week - 1) * 7);
-    const dow = simple.getDay();
-    const ISOweekStart = simple;
-    if (dow <= 4) {
-      ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
-    } else {
-      ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
-    }
-    const ISOweekEnd = new Date(ISOweekStart);
-    ISOweekEnd.setDate(ISOweekStart.getDate() + 6);
-    return { startDate: formatDate(ISOweekStart), endDate: formatDate(ISOweekEnd) };
-  };
-
   const loadTransactions = () => {
-    let startDate = '';
-    let endDate = '';
-
-    if (filterType === 'week') {
-      const activeWeek = selectedWeek || getCurrentWeekString();
-      const range = getWeekRange(activeWeek);
-      startDate = range.startDate;
-      endDate = range.endDate;
-    } else if (filterType === 'month') {
-      const activeMonth = selectedMonth || getCurrentMonthString();
-      const range = getMonthRange(activeMonth);
-      startDate = range.startDate;
-      endDate = range.endDate;
-    } else if (filterType === 'date') {
-      if (!selectedDate) return;
-      startDate = selectedDate;
-      endDate = selectedDate;
-    }
+    const activeMonth = selectedMonth || getCurrentMonthString();
+    const { startDate, endDate } = getMonthRange(activeMonth);
 
     if (!startDate || !endDate) return;
 
@@ -211,14 +159,13 @@ export default function Transactions() {
   };
 
   useEffect(() => {
-    if (!selectedWeek) setSelectedWeek(getCurrentWeekString());
     if (!selectedMonth) setSelectedMonth(getCurrentMonthString());
   }, []);
 
   useEffect(() => {
     loadTransactions();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filterType, selectedWeek, selectedMonth, selectedDate]);
+  }, [selectedMonth]);
 
   const toggleDay = (dateKey) => {
     setCollapsedDays((prev) => ({ ...prev, [dateKey]: !prev[dateKey] }));
@@ -240,56 +187,13 @@ export default function Transactions() {
       {/* Filter Controls Card */}
       <div className="filters-card panel" style={{ padding: '24px', marginBottom: '24px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
-          <div className="filter-type-buttons">
-            <button
-              type="button"
-              className={`btn ${filterType === 'week' ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => setFilterType('week')}
-            >
-              Per Week
-            </button>
-            <button
-              type="button"
-              className={`btn ${filterType === 'month' ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => setFilterType('month')}
-            >
-              Per Month
-            </button>
-            <button
-              type="button"
-              className={`btn ${filterType === 'date' ? 'btn-primary' : 'btn-outline'}`}
-              onClick={() => setFilterType('date')}
-            >
-              Per Date
-            </button>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            {filterType === 'week' && (
-              <input
-                className="input input-w-lg"
-                type="week"
-                value={selectedWeek}
-                onChange={(e) => setSelectedWeek(e.target.value)}
-              />
-            )}
-            {filterType === 'month' && (
-              <input
-                className="input input-w-md"
-                type="month"
-                value={selectedMonth}
-                onChange={(e) => setSelectedMonth(e.target.value)}
-              />
-            )}
-            {filterType === 'date' && (
-              <input
-                className="input input-w-md"
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-              />
-            )}
-          </div>
+          <span className="page-subtitle" style={{ marginTop: 0 }}>Viewing transactions for</span>
+          <input
+            className="input input-w-md"
+            type="month"
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+          />
         </div>
       </div>
 
@@ -320,7 +224,7 @@ export default function Transactions() {
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {dayGroups.map((group) => {
-            const isCollapsed = collapsedDays[group.dateKey];
+            const isCollapsed = collapsedDays[group.dateKey] !== false;
             return (
               <div className="day-group" key={group.dateKey}>
                 <button
@@ -333,7 +237,6 @@ export default function Transactions() {
                       <ChevronIcon />
                     </span>
                     <span>{group.label}</span>
-                    <span className="day-group-count">{group.displayRows.length} activities</span>
                   </div>
 
                   <div className="day-group-meta">

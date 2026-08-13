@@ -1,4 +1,5 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { clearToken } from '../utils/auth.js';
 import BrandMark from './BrandMark.js';
 import './AdminSidebar.css';
@@ -76,14 +77,21 @@ const links = [
 
 export default function AdminSidebar() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [open, setOpen] = useState(false);
+
+  // Close the drawer whenever the route changes (e.g. after tapping a link).
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
 
   const logout = () => {
     clearToken();
     navigate('/admin/login', { replace: true });
   };
 
-  return (
-    <aside className="sidebar">
+  const sidebarLinks = (
+    <>
       <div className="sidebar-brand">
         <BrandMark tagline="Admin Console" />
       </div>
@@ -106,6 +114,40 @@ export default function AdminSidebar() {
         <span className="sidebar-link-icon">{icons.logout}</span>
         Sign Out
       </button>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Compact fixed header shown only on mobile widths, with the
+          hamburger button that opens the off-canvas drawer below. */}
+      <div className="sidebar-topbar">
+        <BrandMark tagline="Admin Console" />
+        <button
+          type="button"
+          className="sidebar-menu-btn"
+          onClick={() => setOpen(true)}
+          aria-label="Open navigation menu"
+          aria-expanded={open}
+        >
+          <span className="sidebar-link-icon">
+            <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M3 5.5h14M3 10h14M3 14.5h14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+          </span>
+        </button>
+      </div>
+
+      {/* Dark backdrop behind the open drawer (mobile only). */}
+      <div
+        className={'sidebar-overlay' + (open ? ' open' : '')}
+        onClick={() => setOpen(false)}
+        aria-hidden="true"
+      />
+
+      <aside className={'sidebar' + (open ? ' open' : '')}>
+        {sidebarLinks}
+      </aside>
+    </>
   );
 }
