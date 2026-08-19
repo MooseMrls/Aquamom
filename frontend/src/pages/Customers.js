@@ -105,8 +105,8 @@ export default function Customers() {
           <div className="customers-balance-label">Total Outstanding Balance</div>
           <div className="customers-balance-value">₱{totalOutstanding.toLocaleString()}</div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.7)' }}>{totalCustomers} total customers</span>
+        <div className="customers-banner-footer">
+          <span className="customers-count-text">{totalCustomers} total customers</span>
           <label className="customers-toggle">
             <input type="checkbox" checked={onlyUnpaid} onChange={(e) => setOnlyUnpaid(e.target.checked)} />
             <span>Unpaid only</span>

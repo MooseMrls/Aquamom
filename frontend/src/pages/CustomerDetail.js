@@ -88,23 +88,20 @@ export default function CustomerDetail() {
               <div className="cd-gallon-list">
                 {gallons.map((g) => (
                   <div key={g._id} className="cd-gallon-item">
-                    <div className="cd-gallon-item-header">
-                      <span className="mono" style={{ fontSize: '0.85rem' }}>{g.qrCode}</span>
-                      <span style={{ fontWeight: '600', color: 'var(--navy-900)' }}>₱{g.price}</span>
-                    </div>
-                    <div className="cd-gallon-item-meta">
-                      <span>{g.size}</span>
-                      <span className="muted" style={{ fontSize: '0.78rem' }}>
-                        Updated {new Date(g.updatedAt).toLocaleDateString()} {new Date(g.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
-                    <div className="cd-gallon-item-statuses" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '10px' }}>
-                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
-                        <StatusBadge status={g.locationStatus} />
-                        <StatusBadge status={g.deliveryStatus} />
-                        <StatusBadge status={g.paymentStatus} />
+                    <div className="cd-gallon-header">
+                      <div className="cd-gallon-title-group">
+                        <div className="cd-gallon-code-row">
+                          <span className="mono activity-qr-badge">{g.qrCode}</span>
+                          <span className="cd-gallon-size">&bull; {g.size}</span>
+                          <span className="cd-gallon-price">&bull; ₱{g.price}</span>
+                        </div>
+                        <div className="cd-gallon-badges">
+                          <StatusBadge status={g.locationStatus} />
+                          <StatusBadge status={g.deliveryStatus} />
+                          <StatusBadge status={g.paymentStatus} />
+                        </div>
                       </div>
-                      <div style={{ display: 'flex', gap: '6px' }}>
+                      <div className="cd-gallon-actions">
                         <button
                           className="btn-icon btn-icon-delivery"
                           data-tooltip={g.deliveryStatus === 'delivered' ? 'Mark Undelivered' : 'Mark Delivered'}
@@ -130,6 +127,9 @@ export default function CustomerDetail() {
                           )}
                         </button>
                       </div>
+                    </div>
+                    <div className="cd-gallon-timestamp">
+                      Updated {new Date(g.updatedAt).toLocaleDateString()} {new Date(g.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
                 ))}

@@ -167,8 +167,11 @@ export default function Transactions() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMonth]);
 
-  const toggleDay = (dateKey) => {
-    setCollapsedDays((prev) => ({ ...prev, [dateKey]: !prev[dateKey] }));
+  const toggleDay = (dateKey, defaultCollapsed) => {
+    setCollapsedDays((prev) => {
+      const current = prev[dateKey] !== undefined ? prev[dateKey] : defaultCollapsed;
+      return { ...prev, [dateKey]: !current };
+    });
   };
 
   const dayGroups = groupByDay(transactions);
@@ -223,14 +226,18 @@ export default function Transactions() {
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          {dayGroups.map((group) => {
-            const isCollapsed = collapsedDays[group.dateKey] !== false;
+          {dayGroups.map((group, index) => {
+            const defaultCollapsed = index > 0;
+            const isCollapsed = collapsedDays[group.dateKey] !== undefined
+              ? collapsedDays[group.dateKey]
+              : defaultCollapsed;
+
             return (
               <div className="day-group" key={group.dateKey}>
                 <button
                   type="button"
                   className="day-group-header"
-                  onClick={() => toggleDay(group.dateKey)}
+                  onClick={() => toggleDay(group.dateKey, defaultCollapsed)}
                 >
                   <div className="day-group-title">
                     <span className={`day-group-chevron ${isCollapsed ? 'collapsed' : ''}`}>
@@ -260,65 +267,66 @@ export default function Transactions() {
                   <div className="day-group-body" style={{ padding: '16px 20px' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       {group.displayRows.map((row) => (
-                        <div
-                          key={row.id}
-                          style={{
-                            display: 'flex',
-                            justifyContent: 'space-between',
-                            alignItems: 'center',
-                            padding: '12px 14px',
-                            background: 'var(--paper)',
-                            borderRadius: 'var(--radius)',
-                            border: '1px solid var(--border)',
-                            flexWrap: 'wrap',
-                            gap: '10px'
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                            <span style={{ fontSize: '0.8rem', color: 'var(--muted)', minWidth: '60px', fontWeight: '500' }}>
-                              {new Date(row.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                            <div>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                                <strong style={{ fontSize: '0.95rem' }}>{row.customerName}</strong>
-                                <StatusBadge status={row.deliveryStatus} />
-                                <StatusBadge status={row.paymentStatus} />
-                              </div>
-                              <span style={{ fontSize: '0.8rem', color: 'var(--text-soft)' }}>
-                                <span className="mono" style={{ fontSize: '0.78rem' }}>{row.qrCode}</span> &bull; {row.size} &bull; ₱{row.price}
-                              </span>
-                            </div>
+                        <div key={row.id} className="tx-card">
+                          <div className="activity-time desktop-only-time">
+                            {new Date(row.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </div>
+                          <div className="activity-main">
+                            <div className="activity-header">
+                              <div className="activity-title-group">
+                                <div className="activity-title-row">
+                                  <strong className="activity-name">{row.customerName}</strong>
+                                  <span className="mobile-only-time">
+                                    &bull; {new Date(row.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                  </span>
+                                </div>
+                                <div className="activity-badges">
+                                  <StatusBadge status={row.deliveryStatus} />
+                                  <StatusBadge status={row.paymentStatus} />
+                                </div>
+                              </div>
+                              {row.gallonObj && (
+                                <div className="activity-actions">
+                                  <button
+                                    className="btn-icon btn-icon-delivery"
+                                    data-tooltip={row.deliveryStatus === 'delivered' ? 'Mark Undelivered' : 'Mark Delivered'}
+                                    title={row.deliveryStatus === 'delivered' ? 'Mark Undelivered' : 'Mark Delivered'}
+                                    onClick={() => quickToggle(row.gallonObj, 'deliveryStatus', row.deliveryStatus === 'delivered' ? 'undelivered' : 'delivered')}
+                                  >
+                                    {row.deliveryStatus === 'delivered' ? (
+                                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M5 15L15 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                    ) : (
+                                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 10.5l4 4 10-10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                    )}
+                                  </button>
+                                  <button
+                                    className="btn-icon btn-icon-payment"
+                                    data-tooltip={row.paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
+                                    title={row.paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
+                                    onClick={() => quickToggle(row.gallonObj, 'paymentStatus', row.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
+                                  >
+                                    {row.paymentStatus === 'paid' ? (
+                                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v14M8 3h4.5a3.5 3.5 0 0 1 0 7H8M5 6.5h8M5 8.5h8M15 5L5 15"/></svg>
+                                    ) : (
+                                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v14M8 3h4.5a3.5 3.5 0 0 1 0 7H8M5 6.5h8M5 8.5h8"/></svg>
+                                    )}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
 
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                            {row.gallonObj && (
-                              <>
-                                <button
-                                  className="btn-icon btn-icon-delivery"
-                                  data-tooltip={row.deliveryStatus === 'delivered' ? 'Mark Undelivered' : 'Mark Delivered'}
-                                  title={row.deliveryStatus === 'delivered' ? 'Mark Undelivered' : 'Mark Delivered'}
-                                  onClick={() => quickToggle(row.gallonObj, 'deliveryStatus', row.deliveryStatus === 'delivered' ? 'undelivered' : 'delivered')}
-                                >
-                                  {row.deliveryStatus === 'delivered' ? (
-                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M5 15L15 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                                  ) : (
-                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 10.5l4 4 10-10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                                  )}
-                                </button>
-                                <button
-                                  className="btn-icon btn-icon-payment"
-                                  data-tooltip={row.paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
-                                  title={row.paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
-                                  onClick={() => quickToggle(row.gallonObj, 'paymentStatus', row.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
-                                >
-                                  {row.paymentStatus === 'paid' ? (
-                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M15 5L5 15M10 3v14M6.5 6.5C7 5.5 8.2 5 10 5s3.2.8 3.2 2.2c0 1.6-1.8 2-3.2 2.3-1.6.3-3.2.8-3.2 2.5 0 1.5 1.5 2.3 3.2 2.3s2.8-.5 3.5-1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                                  ) : (
-                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 3v14M6.5 6.5C7 5.5 8.2 5 10 5s3.2.8 3.2 2.2c0 1.6-1.8 2-3.2 2.3-1.6.3-3.2.8-3.2 2.5 0 1.5 1.5 2.3 3.2 2.3s2.8-.5 3.5-1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                                  )}
-                                </button>
-                              </>
-                            )}
+                            <div className="activity-details">
+                              {row.qrCode !== '-' && (
+                                <span className="mono activity-qr-badge">
+                                  AQM: {row.qrCode}
+                                </span>
+                              )}
+                              <span>{row.size}</span>
+                              <span className="activity-dot">&bull;</span>
+                              <span className="activity-price">₱{row.price}</span>
+                            </div>
+
+                            {row.note && <div className="activity-note">Note: {row.note}</div>}
                           </div>
                         </div>
                       ))}

@@ -146,7 +146,7 @@ export default function Dashboard() {
             ].sort((a, b) => new Date(b.time) - new Date(a.time));
 
             return (
-              <section className="panel" style={{ padding: '24px' }}>
+              <section className="panel today-activity-panel">
                 <h2 style={{ fontSize: '1.15rem', marginBottom: '20px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ display: 'inline-block', width: '8px', height: '8px', borderRadius: '50%', background: 'var(--teal-600)' }} />
                   Today's Activity ({displayRows.length})
@@ -154,58 +154,65 @@ export default function Dashboard() {
                 {displayRows.length === 0 ? (
                   <p className="empty-state">No transaction logs recorded at the station today yet.</p>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div className="activity-list">
                     {displayRows.map((row) => (
-                      <div key={row.id} style={{ display: 'flex', gap: '14px', paddingBottom: '16px', borderBottom: '1px solid var(--border)' }}>
-                        <div style={{ fontSize: '0.85rem', color: 'var(--muted)', width: '68px', paddingTop: '2px', fontWeight: '500' }}>
+                      <div key={row.id} className="activity-item">
+                        <div className="activity-time desktop-only-time">
                           {new Date(row.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                              <strong style={{ fontSize: '0.95rem' }}>{row.customerName}</strong>
-                              <StatusBadge status={row.deliveryStatus} />
-                              <StatusBadge status={row.paymentStatus} />
+                        <div className="activity-main">
+                          <div className="activity-header">
+                            <div className="activity-title-group">
+                              <div className="activity-title-row">
+                                <strong className="activity-name">{row.customerName}</strong>
+                                <span className="mobile-only-time">
+                                  &bull; {new Date(row.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                              </div>
+                              <div className="activity-badges">
+                                <StatusBadge status={row.deliveryStatus} />
+                                <StatusBadge status={row.paymentStatus} />
+                              </div>
                             </div>
                             {row.gallonObj && (
-                              <div style={{ display: 'flex', gap: '6px' }}>
-                                  <button
-                                    className="btn-icon btn-icon-delivery"
-                                    data-tooltip={row.deliveryStatus === 'delivered' ? 'Mark Undelivered' : 'Mark Delivered'}
-                                    title={row.deliveryStatus === 'delivered' ? 'Mark Undelivered' : 'Mark Delivered'}
-                                    onClick={() => quickToggle(row.gallonObj, 'deliveryStatus', row.deliveryStatus === 'delivered' ? 'undelivered' : 'delivered')}
-                                  >
-                                    {row.deliveryStatus === 'delivered' ? (
-                                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M5 15L15 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                                    ) : (
-                                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 10.5l4 4 10-10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                                    )}
-                                  </button>
-                                  <button
-                                    className="btn-icon btn-icon-payment"
-                                    data-tooltip={row.paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
-                                    title={row.paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
-                                    onClick={() => quickToggle(row.gallonObj, 'paymentStatus', row.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
-                                  >
-                                    {row.paymentStatus === 'paid' ? (
-                                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v14M8 3h4.5a3.5 3.5 0 0 1 0 7H8M5 6.5h8M5 8.5h8M15 5L5 15"/></svg>
-                                    ) : (
-                                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v14M8 3h4.5a3.5 3.5 0 0 1 0 7H8M5 6.5h8M5 8.5h8"/></svg>
-                                    )}
-                                  </button>
+                              <div className="activity-actions">
+                                <button
+                                  className="btn-icon btn-icon-delivery"
+                                  data-tooltip={row.deliveryStatus === 'delivered' ? 'Mark Undelivered' : 'Mark Delivered'}
+                                  title={row.deliveryStatus === 'delivered' ? 'Mark Undelivered' : 'Mark Delivered'}
+                                  onClick={() => quickToggle(row.gallonObj, 'deliveryStatus', row.deliveryStatus === 'delivered' ? 'undelivered' : 'delivered')}
+                                >
+                                  {row.deliveryStatus === 'delivered' ? (
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M5 15L15 5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                  ) : (
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M3 10.5l4 4 10-10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                                  )}
+                                </button>
+                                <button
+                                  className="btn-icon btn-icon-payment"
+                                  data-tooltip={row.paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
+                                  title={row.paymentStatus === 'paid' ? 'Mark Unpaid' : 'Mark Paid'}
+                                  onClick={() => quickToggle(row.gallonObj, 'paymentStatus', row.paymentStatus === 'paid' ? 'unpaid' : 'paid')}
+                                >
+                                  {row.paymentStatus === 'paid' ? (
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v14M8 3h4.5a3.5 3.5 0 0 1 0 7H8M5 6.5h8M5 8.5h8M15 5L5 15"/></svg>
+                                  ) : (
+                                    <svg width="16" height="16" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v14M8 3h4.5a3.5 3.5 0 0 1 0 7H8M5 6.5h8M5 8.5h8"/></svg>
+                                  )}
+                                </button>
                               </div>
                             )}
                           </div>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', fontSize: '0.85rem', color: 'var(--text-soft)' }}>
-                            <span className="mono" style={{ padding: '2px 6px', background: 'var(--surface-alt)', borderRadius: '4px' }}>
+                          <div className="activity-details">
+                            <span className="mono activity-qr-badge">
                               QR: {row.qrCode}
                             </span>
-                            <span>&bull;</span>
+                            <span className="activity-dot">&bull;</span>
                             <span>{row.size}</span>
-                            <span>&bull;</span>
-                            <span style={{ fontWeight: '600' }}>₱{row.price}</span>
+                            <span className="activity-dot">&bull;</span>
+                            <span className="activity-price">₱{row.price}</span>
                           </div>
-                          {row.note && <div style={{ fontSize: '0.8rem', color: 'var(--muted)', marginTop: '4px', fontStyle: 'italic' }}>Note: {row.note}</div>}
+                          {row.note && <div className="activity-note">Note: {row.note}</div>}
                         </div>
                       </div>
                     ))}
